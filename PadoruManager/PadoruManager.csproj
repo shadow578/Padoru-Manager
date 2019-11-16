@@ -59,6 +59,24 @@
     <Compile Include="Model\PadoruEntry.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\CollectionManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\CollectionManager.Designer.cs">
+      <DependentUpon>CollectionManager.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\PadoruEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\PadoruEditor.Designer.cs">
+      <DependentUpon>PadoruEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\PadoruPreview.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\PadoruPreview.Designer.cs">
+      <DependentUpon>PadoruPreview.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -68,6 +86,15 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="UI\CollectionManager.resx">
+      <DependentUpon>CollectionManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PadoruEditor.resx">
+      <DependentUpon>PadoruEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PadoruPreview.resx">
+      <DependentUpon>PadoruPreview.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

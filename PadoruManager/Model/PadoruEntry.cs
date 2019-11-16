@@ -35,7 +35,7 @@
         /// This Character's MAL character id
         /// </summary>
         /// <remarks>This field is optional and may be null/empty</remarks>
-        public long? MALId { get; set; }
+        public string MALId { get; set; }
 
         /// <summary>
         /// The Name of the Person that created the image

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JikanDotNet;
+using PadoruManager.UI;
 
 namespace PadoruManager
 {
@@ -13,6 +14,7 @@ namespace PadoruManager
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new PadoruEditor());
 
             //test jikan
             TestJikan().GetAwaiter().GetResult();
