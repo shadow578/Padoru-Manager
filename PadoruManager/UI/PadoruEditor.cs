@@ -204,6 +204,15 @@ namespace PadoruManager.UI
 
         void OnFinishClick(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txtImageUrl.Text)
+                || string.IsNullOrWhiteSpace(txtImagePath.Text)
+                || string.IsNullOrWhiteSpace(txtCharacterName.Text))
+            {
+                //not all required fields are set!
+                MessageBox.Show(this, "There are required values missing!\n(All fields marked with * are reqiured)", "Fields Missing", MessageBoxButtons.OK);
+                return;
+            }
+
             DialogResult = DialogResult.OK;
             Close();
         }
