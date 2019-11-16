@@ -1,16 +1,14 @@
-﻿using System;
+﻿using JikanDotNet;
+using PadoruManager.Model;
+using PadoruManager.Util;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using JikanDotNet;
-using PadoruManager.Model;
 
 namespace PadoruManager.UI
 {
@@ -30,6 +28,11 @@ namespace PadoruManager.UI
                 UiFromEntry(value);
             }
         }
+
+        /// <summary>
+        /// The path to the root directory of the collection the current entry is part of
+        /// </summary>
+        public string CollectionRootPath { get; set; }
 
         /// <summary>
         /// The unique id of the entry beign edited
@@ -79,7 +82,7 @@ namespace PadoruManager.UI
         void UiFromEntry(PadoruEntry entry)
         {
             txtImageUrl.Text = entry.ImageUrl;
-            txtImagePath.Text = entry.ImagePath;
+            txtImagePath.Text = !string.IsNullOrWhiteSpace(entry.ImagePathx) ? Path.Combine(entry.CollectionRoot, entry.ImagePathx) : "";
             txtCharacterName.Text = entry.Name;
             chkCharacterFemale.Checked = entry.IsFemale;
             txtImageCreator.Text = entry.ImageCreator;
@@ -96,6 +99,12 @@ namespace PadoruManager.UI
 
             //save id
             editingId = entry.Id;
+
+            //save root path
+            if (!string.IsNullOrWhiteSpace(entry.CollectionRoot))
+            {
+                CollectionRootPath = entry.CollectionRoot;
+            }
         }
 
         /// <summary>
@@ -107,7 +116,7 @@ namespace PadoruManager.UI
             PadoruEntry entry = new PadoruEntry()
             {
                 ImageUrl = txtImageUrl.Text,
-                ImagePath = txtImagePath.Text,
+                ImagePathx = (!string.IsNullOrWhiteSpace(txtImagePath.Text) ? Utils.MakeRelativePath(CollectionRootPath, txtImagePath.Text) : ""),
                 Name = txtCharacterName.Text,
                 IsFemale = chkCharacterFemale.Checked,
                 MALName = txtSelectedMalName.Text,
@@ -117,6 +126,7 @@ namespace PadoruManager.UI
             };
 
             if (editingId != -1) entry.Id = editingId;
+            if (!string.IsNullOrWhiteSpace(CollectionRootPath)) entry.CollectionRoot = CollectionRootPath;
             return entry;
         }
 

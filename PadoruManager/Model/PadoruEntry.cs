@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace PadoruManager.Model
 {
@@ -7,6 +8,12 @@ namespace PadoruManager.Model
     /// </summary>
     public class PadoruEntry
     {
+        /// <summary>
+        /// The full path to the root directory of the collection this entry is a part of
+        /// </summary>
+        [JsonIgnore]
+        public string CollectionRoot { get; set; }
+
         /// <summary>
         /// A Unique id for this entry
         /// </summary>
@@ -20,7 +27,7 @@ namespace PadoruManager.Model
         /// <summary>
         /// The relative image path inside the local collection directory
         /// </summary>
-        public string ImagePath { get; set; }
+        public string ImagePathx { get; set; }
 
         /// <summary>
         /// This Character's name

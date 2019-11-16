@@ -39,8 +39,15 @@ namespace PadoruManager.Model
                 //read serialized object
                 PadoruCollection collection = GetSerializer().Deserialize(reader, typeof(PadoruCollection)) as PadoruCollection;
 
-                //set load path and return the deserialized object
+                //set load path and and collection root of entries
                 collection.LoadedFrom = filePath;
+                string collectionRoot = Path.GetDirectoryName(filePath);
+                foreach (PadoruEntry entry in collection.Entries)
+                {
+                    entry.CollectionRoot = collectionRoot;
+                }
+
+                //return the deserialized and initialized object
                 return collection;
             }
         }

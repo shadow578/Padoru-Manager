@@ -1,11 +1,11 @@
-﻿using System;
+﻿using PadoruManager.Model;
+using PadoruManager.Util;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using PadoruManager.Model;
-using PadoruManager.Utils;
 
 namespace PadoruManager.UI
 {
@@ -29,7 +29,7 @@ namespace PadoruManager.UI
         /// <summary>
         /// The currently selected entry
         /// </summary>
-        long currentlySelectedEntryId;
+        long currentlySelectedEntryId = -1;
 
         /// <summary>
         /// initialize the ui
@@ -139,8 +139,12 @@ namespace PadoruManager.UI
             foreach (PadoruEntry entry in entries)
             {
                 //load image from entry (local path ONLY)
-                if (string.IsNullOrWhiteSpace(entry.ImagePath) || !File.Exists(entry.ImagePath)) return;
-                Image entryImg = Image.FromFile(entry.ImagePath);
+                if (string.IsNullOrWhiteSpace(entry.ImagePathx)) continue;
+
+                //check that file exists
+                string localImg = Path.Combine(entry.CollectionRoot, entry.ImagePathx);
+                if (!File.Exists(localImg)) continue;
+                Image entryImg = Image.FromFile(localImg);
 
                 //create padoru preview control
                 preview = new PadoruPreview()
@@ -342,6 +346,7 @@ echo Collection dir: %1");
 
             //create Padoru Editor and let user create new entry
             PadoruEditor editor = new PadoruEditor();
+            editor.CollectionRootPath = Path.GetDirectoryName(currentCollection.LoadedFrom);
             if (editor.ShowDialog() != DialogResult.OK) return;
 
             //Get new entry
