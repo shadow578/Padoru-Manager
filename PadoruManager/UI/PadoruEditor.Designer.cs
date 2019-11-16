@@ -294,6 +294,7 @@
             this.ppvMalResultPreview.PreviewImage = null;
             this.ppvMalResultPreview.Size = new System.Drawing.Size(96, 170);
             this.ppvMalResultPreview.TabIndex = 10;
+            this.ppvMalResultPreview.ThickBorders = false;
             // 
             // btnCancel
             // 
@@ -332,6 +333,7 @@
             this.Name = "PadoruEditor";
             this.Padding = new System.Windows.Forms.Padding(12);
             this.Text = "Padoru Entry Editor";
+            this.Load += new System.EventHandler(this.OnLoad);
             groupImage.ResumeLayout(false);
             groupImage.PerformLayout();
             groupCharacter.ResumeLayout(false);

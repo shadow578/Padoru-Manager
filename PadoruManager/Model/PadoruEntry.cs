@@ -1,10 +1,17 @@
-﻿namespace PadoruManager.Model
+﻿using System;
+
+namespace PadoruManager.Model
 {
     /// <summary>
     /// A Padoru Character entry in the collection
     /// </summary>
     public class PadoruEntry
     {
+        /// <summary>
+        /// A Unique id for this entry
+        /// </summary>
+        public long Id { get; set; }
+
         /// <summary>
         /// The Image url (in the github repo)
         /// </summary>
@@ -48,6 +55,12 @@
         /// </summary>
         /// <remarks>This field is optional and may be null/empty</remarks>
         public string ImageSource { get; set; }
+
+        public PadoruEntry()
+        {
+            Random rnd = new Random();
+            Id = ((long)rnd.Next() << sizeof(int)) & (long)rnd.Next();
+        }
 
         public override string ToString()
         {

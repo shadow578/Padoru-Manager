@@ -7,6 +7,11 @@ namespace PadoruManager.UI
     public partial class PadoruPreview : UserControl
     {
         /// <summary>
+        /// how wide the borders are drawn
+        /// </summary>
+        const float BORDER_WIDTH = 2f;
+
+        /// <summary>
         /// The image that is shown in this PadoruPreview
         /// </summary>
         public Image PreviewImage
@@ -37,6 +42,11 @@ namespace PadoruManager.UI
         }
 
         /// <summary>
+        /// If true, the border of the control is drawn in double thickness
+        /// </summary>
+        public bool ThickBorders { get; set; }
+
+        /// <summary>
         /// Initialize the PadoruPreview without name and picture set
         /// </summary>
         public PadoruPreview()
@@ -53,6 +63,15 @@ namespace PadoruManager.UI
         {
             DisplayName = name;
             PreviewImage = image;
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            //do normal paint
+            base.OnPaint(e);
+
+            //draw borders around control
+            e.Graphics.DrawRectangle(new Pen(Color.Black, BORDER_WIDTH * (ThickBorders ? 2 : 1)), e.ClipRectangle);
         }
 
         void OnAnyClick(object sender, EventArgs e)

@@ -45,9 +45,9 @@
             // 
             // lbName
             // 
-            this.lbName.Location = new System.Drawing.Point(0, 126);
+            this.lbName.Location = new System.Drawing.Point(3, 126);
             this.lbName.Name = "lbName";
-            this.lbName.Size = new System.Drawing.Size(93, 44);
+            this.lbName.Size = new System.Drawing.Size(90, 44);
             this.lbName.TabIndex = 1;
             this.lbName.Text = "<Name>";
             this.lbName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;

@@ -21,6 +21,11 @@ namespace PadoruManager.UI
         PadoruCollection currentCollection;
 
         /// <summary>
+        /// The currently selected entry
+        /// </summary>
+        long currentlySelectedEntryId;
+
+        /// <summary>
         /// initialize the ui
         /// </summary>
         public CollectionManager()
@@ -135,8 +140,10 @@ namespace PadoruManager.UI
                 preview = new PadoruPreview()
                 {
                     DisplayName = entry.Name,
-                    PreviewImage = entryImg
+                    PreviewImage = entryImg,
+                    Name = entry.Id.ToString()
                 };
+                preview.Click += OnAnyPreviewClick;
 
                 //add preview to selection panel
                 entrySelectionPanel.Controls.Add(preview);
@@ -155,6 +162,53 @@ namespace PadoruManager.UI
 
             //display results
             ShowOnSelectionPanel(results);
+
+            //update lable at bottom
+            lbEntrysCount.Text = $"Showing {results.Count} of {currentCollection.Entries.Count} entrys";
+        }
+
+        /// <summary>
+        /// update the selected item
+        /// </summary>
+        void UpdateSelection()
+        {
+            foreach (Control ctrl in entrySelectionPanel.Controls)
+            {
+                //skip all that are not previews
+                if (!(ctrl is PadoruPreview preview)) continue;
+
+                //set thick border if is selected item
+                if (!long.TryParse(preview.Name, out long uid))
+                {
+                    preview.ThickBorders = false;
+                    continue;
+                }
+
+                preview.ThickBorders = uid == currentlySelectedEntryId;
+            }
+        }
+
+        /// <summary>
+        /// Get the currently selected entry
+        /// </summary>
+        /// <returns>the selected entry, or null if nothing is selected</returns>
+        PadoruEntry GetSelection()
+        {
+            //check that selection and collection are ok
+            if (currentCollection == null || currentlySelectedEntryId == -1) return null;
+
+            //remove current selection from collection
+            PadoruEntry selectedEntry = null;
+            foreach (PadoruEntry entry in currentCollection.Entries)
+            {
+                if (entry.Id == currentlySelectedEntryId)
+                {
+                    selectedEntry = entry;
+                    break;
+                }
+            }
+
+            return selectedEntry;
         }
 
         #region UI Events
@@ -169,8 +223,15 @@ namespace PadoruManager.UI
             btnAddNew.Enabled = hasCollection;
             btnSaveCollection.Enabled = hasCollection;
 
+            bool hasSelection = currentlySelectedEntryId != -1;
+            btnEditCurrent.Enabled = hasSelection;
+            btnRemoveCurrent.Enabled = hasSelection;
+
             //update search results
             UpdateSearch();
+
+            //update selected preview item
+            UpdateSelection();
         }
 
         void OnLoad(object sender, EventArgs e)
@@ -180,6 +241,7 @@ namespace PadoruManager.UI
             if (!string.IsNullOrWhiteSpace(lastCollection))
             {
                 LoadCollection(lastCollection);
+                currentlySelectedEntryId = -1;
             }
 
             //update ui
@@ -202,6 +264,7 @@ namespace PadoruManager.UI
             SaveLastCollectionFilePath(ofd.FileName);
 
             //update ui
+            currentlySelectedEntryId = -1;
             Refresh();
         }
 
@@ -216,6 +279,7 @@ namespace PadoruManager.UI
 
             //save collection
             currentCollection.ToFile();
+            MessageBox.Show(this, "Saved Changes!", "Saved Changes", MessageBoxButtons.OK);
         }
 
         void OnAddNewClick(object sender, EventArgs e)
@@ -238,8 +302,8 @@ namespace PadoruManager.UI
             if (newEntry != null)
             {
                 currentCollection.Entries.Add(newEntry);
+                currentlySelectedEntryId = newEntry.Id;
             }
-
 
             //update ui
             Refresh();
@@ -247,7 +311,74 @@ namespace PadoruManager.UI
 
         void OnSearchTextChange(object sender, EventArgs e)
         {
+            currentlySelectedEntryId = -1;
             Refresh();
+        }
+
+        void OnAnyPreviewClick(object sender, EventArgs e)
+        {
+            if (!(sender is PadoruPreview preview)) return;
+
+            //get unique entry id from the clicked preview
+            if (!long.TryParse(preview.Name, out long uid))
+            {
+                return;
+            }
+
+            //set selected id
+            currentlySelectedEntryId = uid;
+            Refresh();
+        }
+
+        void OnEditCurrentClick(object sender, EventArgs e)
+        {
+            //get current selection
+            PadoruEntry toEdit = GetSelection();
+            if (toEdit == null) return;
+
+            //show padoru editor
+            PadoruEditor editor = new PadoruEditor();
+            editor.CurrentStateEntry = toEdit;
+            if (editor.ShowDialog() == DialogResult.Cancel) return;
+
+            //get edited entry
+            PadoruEntry editedEntry = editor.CurrentStateEntry;
+            if (editedEntry == null) return;
+
+            //write back saved entry
+            int index = currentCollection.Entries.IndexOf(toEdit);
+            currentCollection.Entries.Remove(toEdit);
+            currentCollection.Entries.Insert(index, editedEntry);
+
+            //update ui
+            Refresh();
+        }
+
+        void OnRemoveCurrentClick(object sender, EventArgs e)
+        {
+            //get current selection
+            PadoruEntry toRemove = GetSelection();
+            if (toRemove == null) return;
+
+            //ask if wants to remove element
+            if (MessageBox.Show(this, $"Do you want to remove \"{toRemove.ToString()}\"?", "Remove Element", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+
+            //remove element
+            currentCollection.Entries.Remove(toRemove);
+
+            //update ui
+            currentlySelectedEntryId = -1;
+            Refresh();
+        }
+
+        void OnClosing(object sender, FormClosingEventArgs e)
+        {
+            DialogResult res = MessageBox.Show(this, "If you close, all unchanged changes will be lost!\nDo you want to save now?", "Save now?", MessageBoxButtons.YesNoCancel);
+            if (res == DialogResult.Yes)
+            {
+                OnSaveCollectionClick(sender, e);
+            }
+            if (res == DialogResult.Cancel) e.Cancel = true;
         }
         #endregion
     }

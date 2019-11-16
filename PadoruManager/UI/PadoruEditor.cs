@@ -32,6 +32,11 @@ namespace PadoruManager.UI
         }
 
         /// <summary>
+        /// The unique id of the entry beign edited
+        /// </summary>
+        long editingId = -1;
+
+        /// <summary>
         /// Shared jikan instance for mal api requests
         /// </summary>
         Jikan jikan;
@@ -40,6 +45,11 @@ namespace PadoruManager.UI
         /// was the character name field changed?
         /// </summary>
         bool characterNameChanged;
+
+        /// <summary>
+        /// Temp variable for when a entry is loaded, so that the combobox for mal selection can be updated correctly 
+        /// </summary>
+        long loadedEntryMalId = -1;
 
         /// <summary>
         /// initialize ui with default values
@@ -72,10 +82,20 @@ namespace PadoruManager.UI
             txtImagePath.Text = entry.ImagePath;
             txtCharacterName.Text = entry.Name;
             chkCharacterFemale.Checked = entry.IsFemale;
-            //txtSelectedMalName
-            //txtSelectedMalId
             txtImageCreator.Text = entry.ImageCreator;
             txtImageSource.Text = entry.ImageSource;
+
+            txtSelectedMalName.Text = entry.MALName;
+            txtSelectedMalId.Text = entry.MALId;
+
+            //parse entry mal id
+            if (long.TryParse(entry.MALId, out long malId))
+            {
+                loadedEntryMalId = malId;
+            }
+
+            //save id
+            editingId = entry.Id;
         }
 
         /// <summary>
@@ -84,7 +104,7 @@ namespace PadoruManager.UI
         /// <returns>the padoru entry</returns>
         PadoruEntry UiToEntry()
         {
-            return new PadoruEntry()
+            PadoruEntry entry = new PadoruEntry()
             {
                 ImageUrl = txtImageUrl.Text,
                 ImagePath = txtImagePath.Text,
@@ -95,6 +115,9 @@ namespace PadoruManager.UI
                 ImageCreator = txtImageCreator.Text,
                 ImageSource = txtImageSource.Text
             };
+
+            if (editingId != -1) entry.Id = editingId;
+            return entry;
         }
 
         /// <summary>
@@ -109,8 +132,19 @@ namespace PadoruManager.UI
             Character character = await jikan.GetCharacter(malId);
             if (character == null) return;
 
+            //Get which show the character is from
+            string show = "?";
+            if (character.Animeography != null && character.Animeography.Count > 0)
+            {
+                show = character.Animeography.First().Name;
+            }
+            else if (character.Mangaography != null && character.Mangaography.Count > 0)
+            {
+                show = character.Mangaography.First().Name;
+            }
+
             //set preview name
-            ppvMalResultPreview.DisplayName = $"{character.Name} ({character.Animeography.First().Name})";
+            ppvMalResultPreview.DisplayName = $"{character.Name} ({show})";
 
             //download image and set preview image
             if (!string.IsNullOrWhiteSpace(character.ImageURL))
@@ -137,10 +171,23 @@ namespace PadoruManager.UI
             List<MalCharacterEntry> characterEntries = new List<MalCharacterEntry>();
             foreach (CharacterSearchEntry character in searchResults.Results)
             {
+                //Get which show the character is from
+                string show = "?";
+                if (character.Animeography != null && character.Animeography.Count > 0)
+                {
+                    show = character.Animeography.First().Name;
+                }
+                else if (character.Mangaography != null && character.Mangaography.Count > 0)
+                {
+                    show = character.Mangaography.First().Name;
+                }
+
+                //Create entry object
                 characterEntries.Add(new MalCharacterEntry()
                 {
                     Name = character.Name,
-                    Id = character.MalId
+                    Id = character.MalId,
+                    Show = show
                 });
             }
 
@@ -198,8 +245,27 @@ namespace PadoruManager.UI
             cbMalIdSelector.Items.Clear();
             cbMalIdSelector.Items.AddRange(characters.ToArray());
 
+            //set selection index
+            if (loadedEntryMalId != -1)
+            {
+                //update selection to loaded entry
+                for (int i = 0; i < cbMalIdSelector.Items.Count; i++)
+                {
+                    if ((cbMalIdSelector.Items[i] as MalCharacterEntry).Id == loadedEntryMalId)
+                    {
+                        cbMalIdSelector.SelectedIndex = i;
+                        break;
+                    }
+                }
+
+                loadedEntryMalId = -1;
+            }
+            else
+            {
+                cbMalIdSelector.SelectedIndex = 0;
+            }
+
             //re- enable mal comboobx
-            cbMalIdSelector.SelectedIndex = 0;
             cbMalIdSelector.Enabled = true;
         }
 
@@ -215,6 +281,13 @@ namespace PadoruManager.UI
             //update preview
             await UpdatePadoruPreview();
         }
+
+        async void OnLoad(object sender, EventArgs e)
+        {
+            await UpdatePadoruPreview();
+            characterNameChanged = true;
+            OnCharacterNameEditEnd(sender, e);
+        }
         #endregion
 
         class MalCharacterEntry
@@ -229,9 +302,14 @@ namespace PadoruManager.UI
             /// </summary>
             public long Id { get; set; }
 
+            /// <summary>
+            /// Which Anime/Manga/Show this character is from
+            /// </summary>
+            public string Show { get; set; }
+
             public override string ToString()
             {
-                return $"{Name}({Id})";
+                return $"{Name}({Show})";
             }
         }
     }
