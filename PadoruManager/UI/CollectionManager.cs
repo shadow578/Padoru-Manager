@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -14,6 +15,11 @@ namespace PadoruManager.UI
         /// The file that is used to track the last opened collection file path
         /// </summary>
         const string LAST_COLLECTION_PATH_FILE = "./lastcollection.path";
+
+        /// <summary>
+        /// the name of the save script (inside the collection path)
+        /// </summary>
+        const string SAVE_SCRIPT_NAME = "onsave.bat";
 
         /// <summary>
         /// The currently loaded collection
@@ -211,6 +217,48 @@ namespace PadoruManager.UI
             return selectedEntry;
         }
 
+        /// <summary>
+        /// Run a script when saving (e.g. a git commit script)
+        /// </summary>
+        void RunSaveScript()
+        {
+            //check if script should be run
+            if (!chkEnableSaveScript.Checked) return;
+
+            //Get path of collection
+            string collectionDir = Path.GetDirectoryName(currentCollection.LoadedFrom);
+
+            //create dir if needed
+            if (!Directory.Exists(collectionDir)) Directory.CreateDirectory(collectionDir);
+
+            //build script path
+            string scriptPath = Path.Combine(collectionDir, SAVE_SCRIPT_NAME);
+
+            //create dummy save script if no script exists
+            if (!File.Exists(scriptPath))
+            {
+                File.WriteAllText(scriptPath, @"REM Example PadoruManager SaveScript.
+REM use %1 to get the directory the collection is in
+REM like this
+echo Collection dir: %1");
+            }
+
+            //run the save script
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo(scriptPath, collectionDir);
+                psi.CreateNoWindow = true;
+                using (Process scriptProc = Process.Start(psi))
+                {
+                    scriptProc.WaitForExit(30000);
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(this, "Error running SaveScript!", "SaveScript Error", MessageBoxButtons.OK);
+            }
+        }
+
         #region UI Events
         public override void Refresh()
         {
@@ -279,6 +327,7 @@ namespace PadoruManager.UI
 
             //save collection
             currentCollection.ToFile();
+            RunSaveScript();
             MessageBox.Show(this, "Saved Changes!", "Saved Changes", MessageBoxButtons.OK);
         }
 

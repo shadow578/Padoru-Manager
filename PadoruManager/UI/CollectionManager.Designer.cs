@@ -37,6 +37,7 @@
             this.txtCollectionSearch = new System.Windows.Forms.TextBox();
             this.btnEditCurrent = new System.Windows.Forms.Button();
             this.btnRemoveCurrent = new System.Windows.Forms.Button();
+            this.chkEnableSaveScript = new System.Windows.Forms.CheckBox();
             groupSelectionResults = new System.Windows.Forms.GroupBox();
             btnOpenCollection = new System.Windows.Forms.Button();
             groupSelectionResults.SuspendLayout();
@@ -128,6 +129,18 @@
             this.btnRemoveCurrent.UseVisualStyleBackColor = true;
             this.btnRemoveCurrent.Click += new System.EventHandler(this.OnRemoveCurrentClick);
             // 
+            // chkEnableSaveScript
+            // 
+            this.chkEnableSaveScript.AutoSize = true;
+            this.chkEnableSaveScript.Checked = true;
+            this.chkEnableSaveScript.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkEnableSaveScript.Location = new System.Drawing.Point(164, 405);
+            this.chkEnableSaveScript.Name = "chkEnableSaveScript";
+            this.chkEnableSaveScript.Size = new System.Drawing.Size(78, 17);
+            this.chkEnableSaveScript.TabIndex = 10;
+            this.chkEnableSaveScript.Text = "SaveScript";
+            this.chkEnableSaveScript.UseVisualStyleBackColor = true;
+            // 
             // CollectionManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -135,6 +148,7 @@
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(731, 507);
+            this.Controls.Add(this.chkEnableSaveScript);
             this.Controls.Add(this.btnRemoveCurrent);
             this.Controls.Add(this.btnEditCurrent);
             this.Controls.Add(this.txtCollectionSearch);
@@ -162,5 +176,6 @@
         private System.Windows.Forms.Button btnSaveCollection;
         private System.Windows.Forms.Button btnEditCurrent;
         private System.Windows.Forms.Button btnRemoveCurrent;
+        private System.Windows.Forms.CheckBox chkEnableSaveScript;
     }
 }
