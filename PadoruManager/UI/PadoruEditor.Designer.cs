@@ -153,7 +153,7 @@
             this.txtSelectedMalId.Location = new System.Drawing.Point(70, 149);
             this.txtSelectedMalId.Name = "txtSelectedMalId";
             this.txtSelectedMalId.ReadOnly = true;
-            this.txtSelectedMalId.Size = new System.Drawing.Size(163, 20);
+            this.txtSelectedMalId.Size = new System.Drawing.Size(223, 20);
             this.txtSelectedMalId.TabIndex = 42;
             this.txtSelectedMalId.TabStop = false;
             // 
@@ -171,7 +171,7 @@
             this.txtSelectedMalName.Location = new System.Drawing.Point(70, 175);
             this.txtSelectedMalName.Name = "txtSelectedMalName";
             this.txtSelectedMalName.ReadOnly = true;
-            this.txtSelectedMalName.Size = new System.Drawing.Size(163, 20);
+            this.txtSelectedMalName.Size = new System.Drawing.Size(223, 20);
             this.txtSelectedMalName.TabIndex = 40;
             this.txtSelectedMalName.TabStop = false;
             // 
@@ -189,7 +189,7 @@
             this.cbMalIdSelector.FormattingEnabled = true;
             this.cbMalIdSelector.Location = new System.Drawing.Point(68, 122);
             this.cbMalIdSelector.Name = "cbMalIdSelector";
-            this.cbMalIdSelector.Size = new System.Drawing.Size(163, 21);
+            this.cbMalIdSelector.Size = new System.Drawing.Size(225, 21);
             this.cbMalIdSelector.TabIndex = 30;
             this.cbMalIdSelector.SelectedIndexChanged += new System.EventHandler(this.OnMalIdSelectorChange);
             // 
@@ -226,7 +226,7 @@
             // 
             this.txtCharacterName.Location = new System.Drawing.Point(70, 23);
             this.txtCharacterName.Name = "txtCharacterName";
-            this.txtCharacterName.Size = new System.Drawing.Size(163, 20);
+            this.txtCharacterName.Size = new System.Drawing.Size(223, 20);
             this.txtCharacterName.TabIndex = 10;
             this.txtCharacterName.TextChanged += new System.EventHandler(this.OnCharacterNameChange);
             this.txtCharacterName.Leave += new System.EventHandler(this.OnCharacterNameEditEnd);
@@ -273,7 +273,7 @@
             // 
             this.txtImageCreator.Location = new System.Drawing.Point(53, 19);
             this.txtImageCreator.Name = "txtImageCreator";
-            this.txtImageCreator.Size = new System.Drawing.Size(180, 20);
+            this.txtImageCreator.Size = new System.Drawing.Size(240, 20);
             this.txtImageCreator.TabIndex = 10;
             // 
             // groupMalPreview
