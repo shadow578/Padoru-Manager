@@ -48,5 +48,17 @@
         /// </summary>
         /// <remarks>This field is optional and may be null/empty</remarks>
         public string ImageSource { get; set; }
+
+        public override string ToString()
+        {
+            if (string.IsNullOrWhiteSpace(MALId))
+            {
+                return $"{Name} (---)";
+            }
+            else
+            {
+                return $"{Name} ({MALId})";
+            }
+        }
     }
 }
