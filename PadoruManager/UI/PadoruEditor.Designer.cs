@@ -110,18 +110,18 @@
             lbPath.AutoSize = true;
             lbPath.Location = new System.Drawing.Point(6, 51);
             lbPath.Name = "lbPath";
-            lbPath.Size = new System.Drawing.Size(29, 13);
+            lbPath.Size = new System.Drawing.Size(33, 13);
             lbPath.TabIndex = 4;
-            lbPath.Text = "Path";
+            lbPath.Text = "Path*";
             // 
             // lbUrl
             // 
             lbUrl.AutoSize = true;
             lbUrl.Location = new System.Drawing.Point(6, 25);
             lbUrl.Name = "lbUrl";
-            lbUrl.Size = new System.Drawing.Size(29, 13);
+            lbUrl.Size = new System.Drawing.Size(33, 13);
             lbUrl.TabIndex = 0;
-            lbUrl.Text = "URL";
+            lbUrl.Text = "URL*";
             // 
             // txtImageUrl
             // 
@@ -143,14 +143,14 @@
             groupCharacter.Controls.Add(this.txtCharacterName);
             groupCharacter.Location = new System.Drawing.Point(15, 102);
             groupCharacter.Name = "groupCharacter";
-            groupCharacter.Size = new System.Drawing.Size(299, 182);
+            groupCharacter.Size = new System.Drawing.Size(299, 204);
             groupCharacter.TabIndex = 1;
             groupCharacter.TabStop = false;
             groupCharacter.Text = "Character";
             // 
             // txtSelectedMalId
             // 
-            this.txtSelectedMalId.Location = new System.Drawing.Point(72, 125);
+            this.txtSelectedMalId.Location = new System.Drawing.Point(70, 149);
             this.txtSelectedMalId.Name = "txtSelectedMalId";
             this.txtSelectedMalId.ReadOnly = true;
             this.txtSelectedMalId.Size = new System.Drawing.Size(163, 20);
@@ -160,7 +160,7 @@
             // lbSelectedMalId
             // 
             lbSelectedMalId.AutoSize = true;
-            lbSelectedMalId.Location = new System.Drawing.Point(6, 128);
+            lbSelectedMalId.Location = new System.Drawing.Point(4, 152);
             lbSelectedMalId.Name = "lbSelectedMalId";
             lbSelectedMalId.Size = new System.Drawing.Size(43, 13);
             lbSelectedMalId.TabIndex = 41;
@@ -168,7 +168,7 @@
             // 
             // txtSelectedMalName
             // 
-            this.txtSelectedMalName.Location = new System.Drawing.Point(72, 151);
+            this.txtSelectedMalName.Location = new System.Drawing.Point(70, 175);
             this.txtSelectedMalName.Name = "txtSelectedMalName";
             this.txtSelectedMalName.ReadOnly = true;
             this.txtSelectedMalName.Size = new System.Drawing.Size(163, 20);
@@ -178,7 +178,7 @@
             // lbMalName
             // 
             lbMalName.AutoSize = true;
-            lbMalName.Location = new System.Drawing.Point(6, 154);
+            lbMalName.Location = new System.Drawing.Point(4, 178);
             lbMalName.Name = "lbMalName";
             lbMalName.Size = new System.Drawing.Size(60, 13);
             lbMalName.TabIndex = 12;
@@ -187,7 +187,7 @@
             // cbMalIdSelector
             // 
             this.cbMalIdSelector.FormattingEnabled = true;
-            this.cbMalIdSelector.Location = new System.Drawing.Point(70, 98);
+            this.cbMalIdSelector.Location = new System.Drawing.Point(68, 122);
             this.cbMalIdSelector.Name = "cbMalIdSelector";
             this.cbMalIdSelector.Size = new System.Drawing.Size(163, 21);
             this.cbMalIdSelector.TabIndex = 30;
@@ -196,7 +196,7 @@
             // lbMalId
             // 
             lbMalId.AutoSize = true;
-            lbMalId.Location = new System.Drawing.Point(6, 101);
+            lbMalId.Location = new System.Drawing.Point(4, 125);
             lbMalId.Name = "lbMalId";
             lbMalId.Size = new System.Drawing.Size(43, 13);
             lbMalId.TabIndex = 10;
@@ -218,9 +218,9 @@
             lbName.AutoSize = true;
             lbName.Location = new System.Drawing.Point(6, 26);
             lbName.Name = "lbName";
-            lbName.Size = new System.Drawing.Size(35, 13);
+            lbName.Size = new System.Drawing.Size(39, 13);
             lbName.TabIndex = 7;
-            lbName.Text = "Name";
+            lbName.Text = "Name*";
             // 
             // txtCharacterName
             // 
@@ -237,7 +237,7 @@
             groupCredits.Controls.Add(this.txtImageSource);
             groupCredits.Controls.Add(lbCreator);
             groupCredits.Controls.Add(this.txtImageCreator);
-            groupCredits.Location = new System.Drawing.Point(15, 290);
+            groupCredits.Location = new System.Drawing.Point(15, 312);
             groupCredits.Name = "groupCredits";
             groupCredits.Size = new System.Drawing.Size(414, 74);
             groupCredits.TabIndex = 2;
@@ -281,7 +281,7 @@
             groupMalPreview.Controls.Add(this.ppvMalResultPreview);
             groupMalPreview.Location = new System.Drawing.Point(320, 102);
             groupMalPreview.Name = "groupMalPreview";
-            groupMalPreview.Size = new System.Drawing.Size(109, 195);
+            groupMalPreview.Size = new System.Drawing.Size(109, 204);
             groupMalPreview.TabIndex = 4;
             groupMalPreview.TabStop = false;
             groupMalPreview.Text = "MAL Preview";
@@ -292,13 +292,13 @@
             this.ppvMalResultPreview.Location = new System.Drawing.Point(6, 19);
             this.ppvMalResultPreview.Name = "ppvMalResultPreview";
             this.ppvMalResultPreview.PreviewImage = null;
-            this.ppvMalResultPreview.Size = new System.Drawing.Size(96, 170);
+            this.ppvMalResultPreview.Size = new System.Drawing.Size(96, 176);
             this.ppvMalResultPreview.TabIndex = 10;
             this.ppvMalResultPreview.ThickBorders = false;
             // 
             // btnCancel
             // 
-            btnCancel.Location = new System.Drawing.Point(15, 370);
+            btnCancel.Location = new System.Drawing.Point(15, 392);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new System.Drawing.Size(117, 23);
             btnCancel.TabIndex = 1010;
@@ -308,7 +308,7 @@
             // 
             // btnFinish
             // 
-            btnFinish.Location = new System.Drawing.Point(312, 370);
+            btnFinish.Location = new System.Drawing.Point(312, 392);
             btnFinish.Name = "btnFinish";
             btnFinish.Size = new System.Drawing.Size(117, 23);
             btnFinish.TabIndex = 1000;
