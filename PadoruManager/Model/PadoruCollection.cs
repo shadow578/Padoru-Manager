@@ -80,6 +80,9 @@ namespace PadoruManager.Model
             string dirPath = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(dirPath)) Directory.CreateDirectory(dirPath);
 
+            //update last changed date
+            LastChange = DateTime.Now;
+
             //write to file
             using (StreamWriter writer = File.CreateText(filePath))
             {
