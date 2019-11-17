@@ -206,6 +206,64 @@ namespace PadoruManager.UI
         }
 
         /// <summary>
+        /// Update the Mal ID Selector Box by searching MAL for the given character name
+        /// Also updates the Character Selection
+        /// </summary>
+        /// <param name="characterName">the character name to search for</param>
+        async Task UpdateMalSelectorList(string characterName)
+        {
+            //lock mal combobox
+            cbMalIdSelector.Enabled = false;
+
+            //update mal combobox
+            List<MalCharacterEntry> characters = await GetMalCharacters(characterName);
+            cbMalIdSelector.Items.Clear();
+
+            //add empty character
+            cbMalIdSelector.Items.Add(new MalCharacterEntry()
+            {
+                Name = "Empty",
+                Id = 0,
+                Show = ""
+            });
+
+            //add found characters
+            cbMalIdSelector.Items.AddRange(characters.ToArray());
+
+            //set selection index
+            if (loadedEntryMalId != -1)
+            {
+                //update selection to loaded entry
+                for (int i = 0; i < cbMalIdSelector.Items.Count; i++)
+                {
+                    if ((cbMalIdSelector.Items[i] as MalCharacterEntry).Id == loadedEntryMalId)
+                    {
+                        cbMalIdSelector.SelectedIndex = i;
+                        break;
+                    }
+                }
+
+                loadedEntryMalId = -1;
+            }
+            else
+            {
+                if (cbMalIdSelector.Items.Count == 1)
+                {
+                    //only have "empty" entry, select that
+                    cbMalIdSelector.SelectedIndex = 0;
+                }
+                else if (cbMalIdSelector.Items.Count > 1)
+                {
+                    //have "empty" + character entrys, select first character
+                    cbMalIdSelector.SelectedIndex = 1;
+                }
+            }
+
+            //re- enable mal comboobx
+            cbMalIdSelector.Enabled = true;
+        }
+
+        /// <summary>
         /// Check if all required fields are filled. Also highlights the fields that need to be filled
         /// </summary>
         /// <remarks>Required are: URL, PATH, Name, Creator Name, Contributor Name</remarks>
@@ -327,36 +385,8 @@ namespace PadoruManager.UI
             string name = txtCharacterName.Text;
             if (string.IsNullOrWhiteSpace(name)) return;
 
-            //lock mal combobox
-            cbMalIdSelector.Enabled = false;
-
-            //update mal combobox
-            List<MalCharacterEntry> characters = await GetMalCharacters(name);
-            cbMalIdSelector.Items.Clear();
-            cbMalIdSelector.Items.AddRange(characters.ToArray());
-
-            //set selection index
-            if (loadedEntryMalId != -1)
-            {
-                //update selection to loaded entry
-                for (int i = 0; i < cbMalIdSelector.Items.Count; i++)
-                {
-                    if ((cbMalIdSelector.Items[i] as MalCharacterEntry).Id == loadedEntryMalId)
-                    {
-                        cbMalIdSelector.SelectedIndex = i;
-                        break;
-                    }
-                }
-
-                loadedEntryMalId = -1;
-            }
-            else
-            {
-                cbMalIdSelector.SelectedIndex = 0;
-            }
-
-            //re- enable mal comboobx
-            cbMalIdSelector.Enabled = true;
+            //update selector
+            await UpdateMalSelectorList(name);
         }
 
         async void OnMalIdSelectorChange(object sender, EventArgs e)
@@ -364,9 +394,19 @@ namespace PadoruManager.UI
             //Get selected item as entry
             if (!(cbMalIdSelector.SelectedItem is MalCharacterEntry entry)) return;
 
-            //update text boxes
-            txtSelectedMalId.Text = entry.Id.ToString();
-            txtSelectedMalName.Text = entry.Name;
+            //chech for "Empty" entry with MAL id 0
+            if (entry.Id != 0)
+            {
+                //update text boxes
+                txtSelectedMalId.Text = entry.Id.ToString();
+                txtSelectedMalName.Text = entry.Name;
+            }
+            else
+            {
+                //clear text boxes
+                txtSelectedMalId.Text = "";
+                txtSelectedMalName.Text = "";
+            }
 
             //update preview
             await UpdatePadoruPreview();
@@ -411,7 +451,16 @@ namespace PadoruManager.UI
 
             public override string ToString()
             {
-                return $"{Name}({Show})";
+                if (!string.IsNullOrWhiteSpace(Show))
+                {
+                    //has a show
+                    return $"{Name}({Show})";
+                }
+                else
+                {
+                    //has no show
+                    return $"{Name}";
+                }
             }
         }
     }
