@@ -47,7 +47,7 @@ namespace PadoruManager.UI
         /// <summary>
         /// was the character name field changed?
         /// </summary>
-        bool characterNameChanged;
+        bool malQueryChanged;
 
         /// <summary>
         /// Temp variable for when a entry is loaded, so that the combobox for mal selection can be updated correctly 
@@ -174,11 +174,14 @@ namespace PadoruManager.UI
         /// <returns>the list of found characters</returns>
         async Task<List<MalCharacterEntry>> GetMalCharacters(string searchName)
         {
+            //create a empty list to hold search results
+            List<MalCharacterEntry> characterEntries = new List<MalCharacterEntry>();
+
+            //check the query input
+            if (string.IsNullOrWhiteSpace(searchName)) return characterEntries;
+
             //search mal for character name
             CharacterSearchResult searchResults = await jikan.SearchCharacter(searchName);
-
-            //create a empty list
-            List<MalCharacterEntry> characterEntries = new List<MalCharacterEntry>();
 
             //check that we actually have search results
             if (searchResults == null || searchResults.Results == null) return characterEntries;
@@ -373,22 +376,39 @@ namespace PadoruManager.UI
             txtImagePath.Text = ofd.FileName;
         }
 
-        void OnCharacterNameChange(object sender, EventArgs e)
+        void OnCharacterNameChanged(object sender, EventArgs e)
         {
-            characterNameChanged = true;
+            //clone changes to MAL search query
+            txtMalSearchQuery.Text = txtCharacterName.Text;
 
             //forward event
             OnRequiredFieldChange(sender, e);
         }
 
-        async void OnCharacterNameEditEnd(object sender, EventArgs e)
+        void OnMalSearchQueryChanged(object sender, EventArgs e)
+        {
+            malQueryChanged = true;
+        }
+
+        void OnMalSearchQueryKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                //enter pressed, end edit
+                OnMalSearchQueryEditEnd(sender, e);
+            }
+        }
+
+        async void OnMalSearchQueryEditEnd(object sender, EventArgs e)
         {
             //skip if flag not set
-            if (!characterNameChanged) return;
+            if (!malQueryChanged) return;
 
-            //skip if name is empty
-            string name = txtCharacterName.Text;
-            if (string.IsNullOrWhiteSpace(name)) return;
+            //reset flag
+            malQueryChanged = false;
+
+            //get the search query (character name)
+            string name = txtMalSearchQuery.Text;
 
             //update selector
             await UpdateMalSelectorList(name);
@@ -429,8 +449,8 @@ namespace PadoruManager.UI
             await UpdatePadoruPreview();
 
             //force update mal character search
-            characterNameChanged = true;
-            OnCharacterNameEditEnd(sender, e);
+            malQueryChanged = true;
+            OnMalSearchQueryEditEnd(sender, e);
 
             //disable "loading" cursor
             UseWaitCursor = false;
