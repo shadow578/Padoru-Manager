@@ -50,6 +50,11 @@ namespace PadoruManager.UI
         bool malQueryChanged;
 
         /// <summary>
+        /// Was any field changed?
+        /// </summary>
+        bool anyFieldChanged = false;
+
+        /// <summary>
         /// Temp variable for when a entry is loaded, so that the combobox for mal selection can be updated correctly 
         /// </summary>
         long loadedEntryMalId = -1;
@@ -346,6 +351,16 @@ namespace PadoruManager.UI
         #region UI Events
         void OnCancelClick(object sender, EventArgs e)
         {
+            if (anyFieldChanged)
+            {
+                //user has unsaved changes, ask if he wants to cancel anyways
+                if (MessageBox.Show(this, "If you Cancel, all unsaved changes will be lost.\nDo you want to Cancel anyway?", "Cancel", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                {
+                    //does not want to cancel
+                    return;
+                }
+            }
+
             DialogResult = DialogResult.Cancel;
             Close();
         }
@@ -462,6 +477,14 @@ namespace PadoruManager.UI
         {
             //update highlighting 
             CheckRequiredFields();
+
+            //Forward event
+            OnAnyFieldChange(sender, e);
+        }
+
+        void OnAnyFieldChange(object sender, EventArgs e)
+        {
+            anyFieldChanged = true;
         }
         #endregion
 

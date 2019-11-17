@@ -163,6 +163,7 @@
             this.chkCharacterFemale.TabIndex = 20;
             this.chkCharacterFemale.Text = "Is Female?";
             this.chkCharacterFemale.UseVisualStyleBackColor = true;
+            this.chkCharacterFemale.CheckedChanged += new System.EventHandler(this.OnAnyFieldChange);
             // 
             // lbName
             // 
@@ -249,6 +250,7 @@
             this.txtImageSource.Name = "txtImageSource";
             this.txtImageSource.Size = new System.Drawing.Size(339, 20);
             this.txtImageSource.TabIndex = 30;
+            this.txtImageSource.TextChanged += new System.EventHandler(this.OnAnyFieldChange);
             // 
             // txtImageContributor
             // 
