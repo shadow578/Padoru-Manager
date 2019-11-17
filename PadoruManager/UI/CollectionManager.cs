@@ -139,18 +139,29 @@ namespace PadoruManager.UI
             PadoruPreview preview;
             foreach (PadoruEntry entry in entries)
             {
-                //load image from entry (local path ONLY)
-                if (string.IsNullOrWhiteSpace(entry.ImagePath)) continue;
+                //get image for preview, fallback to no_padoru
+                Image entryImg = Properties.Resources.no_padoru;
+                if (!string.IsNullOrWhiteSpace(entry.ImagePath))
+                {
+                    //create absolute path, check that it exists
+                    string localImg = Path.Combine(entry.CollectionRoot, entry.ImagePath);
+                    if (File.Exists(localImg))
+                    {
+                        entryImg = Image.FromFile(localImg);
+                    }
+                }
 
-                //check that file exists
-                string localImg = Path.Combine(entry.CollectionRoot, entry.ImagePath);
-                if (!File.Exists(localImg)) continue;
-                Image entryImg = Image.FromFile(localImg);
+                //get display name
+                string entryName = "<NAME>";
+                if (!string.IsNullOrWhiteSpace(entry.Name))
+                {
+                    entryName = entry.Name;
+                }
 
                 //create padoru preview control
                 preview = new PadoruPreview()
                 {
-                    DisplayName = entry.Name,
+                    DisplayName = entryName,
                     PreviewImage = entryImg,
                     Name = entry.Id.ToString()
                 };
