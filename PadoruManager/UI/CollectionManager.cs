@@ -137,6 +137,7 @@ namespace PadoruManager.UI
 
             //enumerate all entries
             PadoruPreview preview;
+            int tabIndex = 0;
             foreach (PadoruEntry entry in entries)
             {
                 //get image for preview, fallback to no_padoru
@@ -163,7 +164,8 @@ namespace PadoruManager.UI
                 {
                     DisplayName = entryName,
                     PreviewImage = entryImg,
-                    Name = entry.Id.ToString()
+                    Name = entry.Id.ToString(),
+                    TabIndex = tabIndex++
                 };
                 preview.Click += OnAnyPreviewClick;
 

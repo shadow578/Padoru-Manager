@@ -49,7 +49,7 @@
             groupSelectionResults.Location = new System.Drawing.Point(12, 39);
             groupSelectionResults.Name = "groupSelectionResults";
             groupSelectionResults.Size = new System.Drawing.Size(492, 356);
-            groupSelectionResults.TabIndex = 0;
+            groupSelectionResults.TabIndex = 100;
             groupSelectionResults.TabStop = false;
             groupSelectionResults.Text = "Select Entry";
             // 
@@ -60,14 +60,14 @@
             this.entrySelectionPanel.Location = new System.Drawing.Point(3, 16);
             this.entrySelectionPanel.Name = "entrySelectionPanel";
             this.entrySelectionPanel.Size = new System.Drawing.Size(486, 337);
-            this.entrySelectionPanel.TabIndex = 1;
+            this.entrySelectionPanel.TabIndex = 100;
             // 
             // btnOpenCollection
             // 
             btnOpenCollection.Location = new System.Drawing.Point(248, 401);
             btnOpenCollection.Name = "btnOpenCollection";
             btnOpenCollection.Size = new System.Drawing.Size(125, 23);
-            btnOpenCollection.TabIndex = 4;
+            btnOpenCollection.TabIndex = 1060;
             btnOpenCollection.Text = "Open Collection";
             btnOpenCollection.UseVisualStyleBackColor = true;
             btnOpenCollection.Click += new System.EventHandler(this.OnOpenCollectionClick);
@@ -77,7 +77,7 @@
             this.btnAddNew.Location = new System.Drawing.Point(222, 10);
             this.btnAddNew.Name = "btnAddNew";
             this.btnAddNew.Size = new System.Drawing.Size(90, 23);
-            this.btnAddNew.TabIndex = 5;
+            this.btnAddNew.TabIndex = 20;
             this.btnAddNew.Text = "Add New";
             this.btnAddNew.UseVisualStyleBackColor = true;
             this.btnAddNew.Click += new System.EventHandler(this.OnAddNewClick);
@@ -87,7 +87,7 @@
             this.btnSaveCollection.Location = new System.Drawing.Point(379, 401);
             this.btnSaveCollection.Name = "btnSaveCollection";
             this.btnSaveCollection.Size = new System.Drawing.Size(125, 23);
-            this.btnSaveCollection.TabIndex = 6;
+            this.btnSaveCollection.TabIndex = 1070;
             this.btnSaveCollection.Text = "Save Collection";
             this.btnSaveCollection.UseVisualStyleBackColor = true;
             this.btnSaveCollection.Click += new System.EventHandler(this.OnSaveCollectionClick);
@@ -106,7 +106,7 @@
             this.txtCollectionSearch.Location = new System.Drawing.Point(12, 12);
             this.txtCollectionSearch.Name = "txtCollectionSearch";
             this.txtCollectionSearch.Size = new System.Drawing.Size(204, 20);
-            this.txtCollectionSearch.TabIndex = 7;
+            this.txtCollectionSearch.TabIndex = 10;
             this.txtCollectionSearch.TextChanged += new System.EventHandler(this.OnSearchTextChange);
             // 
             // btnEditCurrent
@@ -114,7 +114,7 @@
             this.btnEditCurrent.Location = new System.Drawing.Point(318, 10);
             this.btnEditCurrent.Name = "btnEditCurrent";
             this.btnEditCurrent.Size = new System.Drawing.Size(90, 23);
-            this.btnEditCurrent.TabIndex = 8;
+            this.btnEditCurrent.TabIndex = 30;
             this.btnEditCurrent.Text = "Edit";
             this.btnEditCurrent.UseVisualStyleBackColor = true;
             this.btnEditCurrent.Click += new System.EventHandler(this.OnEditCurrentClick);
@@ -124,7 +124,7 @@
             this.btnRemoveCurrent.Location = new System.Drawing.Point(414, 9);
             this.btnRemoveCurrent.Name = "btnRemoveCurrent";
             this.btnRemoveCurrent.Size = new System.Drawing.Size(90, 23);
-            this.btnRemoveCurrent.TabIndex = 9;
+            this.btnRemoveCurrent.TabIndex = 40;
             this.btnRemoveCurrent.Text = "Remove";
             this.btnRemoveCurrent.UseVisualStyleBackColor = true;
             this.btnRemoveCurrent.Click += new System.EventHandler(this.OnRemoveCurrentClick);
@@ -137,7 +137,7 @@
             this.chkEnableSaveScript.Location = new System.Drawing.Point(164, 405);
             this.chkEnableSaveScript.Name = "chkEnableSaveScript";
             this.chkEnableSaveScript.Size = new System.Drawing.Size(78, 17);
-            this.chkEnableSaveScript.TabIndex = 10;
+            this.chkEnableSaveScript.TabIndex = 1050;
             this.chkEnableSaveScript.Text = "SaveScript";
             this.chkEnableSaveScript.UseVisualStyleBackColor = true;
             // 
