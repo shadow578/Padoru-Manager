@@ -15,6 +15,11 @@ namespace PadoruManager.UI
     public partial class PadoruEditor : Form
     {
         /// <summary>
+        /// The path to the repo file
+        /// </summary>
+        const string REPO_URL_FILE_PATH = "./repobase.url";
+
+        /// <summary>
         /// Get/set the padoru entry representing the current ui state
         /// </summary>
         public PadoruEntry CurrentStateEntry
@@ -348,6 +353,19 @@ namespace PadoruManager.UI
             return !anyMissing;
         }
 
+        /// <summary>
+        /// Get the root url of the github repo the images are hosted in (raw / direct link)
+        /// </summary>
+        /// <returns>the root url, that, appended with the relative image path, forms the image url</returns>
+        string GetRepoRootPath()
+        {
+            //check file exists
+            if (!File.Exists(REPO_URL_FILE_PATH)) return string.Empty;
+
+            //read first line
+            return File.ReadAllLines(REPO_URL_FILE_PATH).FirstOrDefault();
+        }
+
         #region UI Events
         void OnCancelClick(object sender, EventArgs e)
         {
@@ -391,6 +409,28 @@ namespace PadoruManager.UI
 
             //get path
             txtImagePath.Text = ofd.FileName;
+
+            //exit if already have url
+            if (!string.IsNullOrWhiteSpace(txtImageUrl.Text)) return;
+
+            //make relative path
+            string relPath = Utils.MakeRelativePath(CollectionRootPath, ofd.FileName);
+            if (string.IsNullOrWhiteSpace(relPath)) return;
+            relPath = relPath.Replace("\\", "/");
+
+            //get repo base url
+            string repoBase = GetRepoRootPath();
+            if (string.IsNullOrWhiteSpace(repoBase)) return;
+            if (!repoBase.EndsWith("/")) repoBase += "/";
+
+            //build image url in basic scheme
+            string imgUrl = repoBase + relPath;
+
+            //check built url is valid
+            if (!Uri.IsWellFormedUriString(imgUrl, UriKind.Absolute)) return;
+
+            //set textbox
+            txtImageUrl.Text = imgUrl;
         }
 
         void OnCharacterNameChanged(object sender, EventArgs e)
