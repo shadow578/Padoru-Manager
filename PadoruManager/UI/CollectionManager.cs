@@ -114,6 +114,7 @@ namespace PadoruManager.UI
                 if ((!string.IsNullOrWhiteSpace(entry.Name) && entry.Name.ContainsIgnoreCase(query))
                     || (!string.IsNullOrWhiteSpace(entry.MALName) && entry.MALName.ContainsIgnoreCase(query))
                     || (!string.IsNullOrWhiteSpace(entry.MALId) && entry.MALId.ContainsIgnoreCase(query))
+                    || (!string.IsNullOrWhiteSpace(entry.ImageContributor) && entry.ImageContributor.ContainsIgnoreCase(query))
                     || (!string.IsNullOrWhiteSpace(entry.ImageCreator) && entry.ImageCreator.ContainsIgnoreCase(query)))
                 {
                     //something in this entry matches the query, add it to the search results
