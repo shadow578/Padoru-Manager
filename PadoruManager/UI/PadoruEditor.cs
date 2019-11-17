@@ -85,6 +85,7 @@ namespace PadoruManager.UI
             txtImagePath.Text = !string.IsNullOrWhiteSpace(entry.ImagePath) ? Path.Combine(entry.CollectionRoot, entry.ImagePath) : "";
             txtCharacterName.Text = entry.Name;
             chkCharacterFemale.Checked = entry.IsFemale;
+            txtImageContributor.Text = entry.ImageContributor;
             txtImageCreator.Text = entry.ImageCreator;
             txtImageSource.Text = entry.ImageSource;
 
@@ -121,6 +122,7 @@ namespace PadoruManager.UI
                 IsFemale = chkCharacterFemale.Checked,
                 MALName = txtSelectedMalName.Text,
                 MALId = txtSelectedMalId.Text,
+                ImageContributor = txtImageContributor.Text,
                 ImageCreator = txtImageCreator.Text,
                 ImageSource = txtImageSource.Text
             };
