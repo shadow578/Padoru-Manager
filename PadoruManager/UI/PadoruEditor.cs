@@ -177,8 +177,13 @@ namespace PadoruManager.UI
             //search mal for character name
             CharacterSearchResult searchResults = await jikan.SearchCharacter(searchName);
 
-            //create a list of all search results
+            //create a empty list
             List<MalCharacterEntry> characterEntries = new List<MalCharacterEntry>();
+
+            //check that we actually have search results
+            if (searchResults == null || searchResults.Results == null) return characterEntries;
+
+            //create a list of all search results
             foreach (CharacterSearchEntry character in searchResults.Results)
             {
                 //Get which show the character is from
@@ -414,6 +419,9 @@ namespace PadoruManager.UI
 
         async void OnLoad(object sender, EventArgs e)
         {
+            //enable "loading" cursor for form
+            UseWaitCursor = true;
+
             //force check required fields
             CheckRequiredFields();
 
@@ -423,6 +431,9 @@ namespace PadoruManager.UI
             //force update mal character search
             characterNameChanged = true;
             OnCharacterNameEditEnd(sender, e);
+
+            //disable "loading" cursor
+            UseWaitCursor = false;
         }
 
         void OnRequiredFieldChange(object sender, EventArgs e)

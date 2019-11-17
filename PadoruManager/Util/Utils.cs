@@ -23,6 +23,9 @@ namespace PadoruManager.Util
         /// <returns>the relative path, or string.Empty if the full path does not start with the base path</returns>
         public static string MakeRelativePath(string basePath, string fullPath)
         {
+            //check inputs
+            if (string.IsNullOrWhiteSpace(basePath) || string.IsNullOrWhiteSpace(fullPath)) return string.Empty;
+
             //get paths in upper case
             string basePathUc = basePath.ToUpper();
             string fullPathUc = fullPath.ToUpper();
