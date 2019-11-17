@@ -20,7 +20,7 @@ namespace PadoruManager.Util
         /// </summary>
         /// <param name="basePath">the base path the resulting path should be relative to</param>
         /// <param name="fullPath">the full (absolute) path to make relative</param>
-        /// <returns>the relative path</returns>
+        /// <returns>the relative path, or string.Empty if the full path does not start with the base path</returns>
         public static string MakeRelativePath(string basePath, string fullPath)
         {
             //get paths in upper case
@@ -28,7 +28,7 @@ namespace PadoruManager.Util
             string fullPathUc = fullPath.ToUpper();
 
             //check that full path begins with the base path
-            if (!fullPathUc.StartsWith(basePathUc)) throw new InvalidOperationException("The full path must start with the base path!");
+            if (!fullPathUc.StartsWith(basePathUc)) return string.Empty;
 
             //remove base path from full path
             string relPath = fullPath.Substring(basePath.Length).TrimStart('\\');

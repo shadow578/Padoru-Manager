@@ -206,17 +206,73 @@ namespace PadoruManager.UI
         }
 
         /// <summary>
-        /// Check if all required fields are filled
+        /// Check if all required fields are filled. Also highlights the fields that need to be filled
         /// </summary>
+        /// <remarks>Required are: URL, PATH, Name, Creator Name, Contributor Name</remarks>
         /// <returns>are all required fields filled?</returns>
         bool CheckRequiredFields()
         {
-            //required are: URL, PATH, Name, Creator Name, Contributor
-            return !string.IsNullOrWhiteSpace(txtImageUrl.Text)
-                && !string.IsNullOrWhiteSpace(txtImagePath.Text)
-                && !string.IsNullOrWhiteSpace(txtCharacterName.Text)
-                && !string.IsNullOrWhiteSpace(txtImageContributor.Text)
-                && !string.IsNullOrWhiteSpace(txtImageCreator.Text);
+            //setup shared variables
+            bool anyMissing = false;
+            Color bgOk = SystemColors.Window;
+            Color bgBd = Color.Red;
+
+            //image url
+            if (string.IsNullOrWhiteSpace(txtImageUrl.Text))
+            {
+                anyMissing = true;
+                txtImageUrl.BackColor = bgBd;
+            }
+            else
+            {
+                txtImageUrl.BackColor = bgOk;
+            }
+
+            //image path is special because it also has to be possible to be made a relative path
+            if (string.IsNullOrWhiteSpace(txtImagePath.Text) || string.IsNullOrWhiteSpace(Utils.MakeRelativePath(CollectionRootPath, txtImagePath.Text)))
+            {
+                anyMissing = true;
+                txtImagePath.BackColor = bgBd;
+            }
+            else
+            {
+                txtImagePath.BackColor = bgOk;
+            }
+
+            //character name
+            if (string.IsNullOrWhiteSpace(txtCharacterName.Text))
+            {
+                anyMissing = true;
+                txtCharacterName.BackColor = bgBd;
+            }
+            else
+            {
+                txtCharacterName.BackColor = bgOk;
+            }
+
+            //contributor name
+            if (string.IsNullOrWhiteSpace(txtImageContributor.Text))
+            {
+                anyMissing = true;
+                txtImageContributor.BackColor = bgBd;
+            }
+            else
+            {
+                txtImageContributor.BackColor = bgOk;
+            }
+
+            //creator name
+            if (string.IsNullOrWhiteSpace(txtImageCreator.Text))
+            {
+                anyMissing = true;
+                txtImageCreator.BackColor = bgBd;
+            }
+            else
+            {
+                txtImageCreator.BackColor = bgOk;
+            }
+
+            return !anyMissing;
         }
 
         #region UI Events
@@ -257,6 +313,9 @@ namespace PadoruManager.UI
         void OnCharacterNameChange(object sender, EventArgs e)
         {
             characterNameChanged = true;
+
+            //forward event
+            OnRequiredFieldChange(sender, e);
         }
 
         async void OnCharacterNameEditEnd(object sender, EventArgs e)
@@ -315,9 +374,21 @@ namespace PadoruManager.UI
 
         async void OnLoad(object sender, EventArgs e)
         {
+            //force check required fields
+            CheckRequiredFields();
+
+            //force get current mal preview image
             await UpdatePadoruPreview();
+
+            //force update mal character search
             characterNameChanged = true;
             OnCharacterNameEditEnd(sender, e);
+        }
+
+        void OnRequiredFieldChange(object sender, EventArgs e)
+        {
+            //update highlighting 
+            CheckRequiredFields();
         }
         #endregion
 

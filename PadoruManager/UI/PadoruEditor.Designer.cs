@@ -107,6 +107,7 @@
             this.txtImagePath.Name = "txtImagePath";
             this.txtImagePath.Size = new System.Drawing.Size(340, 20);
             this.txtImagePath.TabIndex = 20;
+            this.txtImagePath.TextChanged += new System.EventHandler(this.OnRequiredFieldChange);
             // 
             // lbPath
             // 
@@ -132,6 +133,7 @@
             this.txtImageUrl.Name = "txtImageUrl";
             this.txtImageUrl.Size = new System.Drawing.Size(366, 20);
             this.txtImageUrl.TabIndex = 10;
+            this.txtImageUrl.TextChanged += new System.EventHandler(this.OnRequiredFieldChange);
             // 
             // groupCharacter
             // 
@@ -280,6 +282,7 @@
             this.txtImageContributor.Name = "txtImageContributor";
             this.txtImageContributor.Size = new System.Drawing.Size(223, 20);
             this.txtImageContributor.TabIndex = 10;
+            this.txtImageContributor.TextChanged += new System.EventHandler(this.OnRequiredFieldChange);
             // 
             // lbCreator
             // 
@@ -296,6 +299,7 @@
             this.txtImageCreator.Name = "txtImageCreator";
             this.txtImageCreator.Size = new System.Drawing.Size(225, 20);
             this.txtImageCreator.TabIndex = 20;
+            this.txtImageCreator.TextChanged += new System.EventHandler(this.OnRequiredFieldChange);
             // 
             // groupMalPreview
             // 
