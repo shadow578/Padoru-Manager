@@ -27,7 +27,7 @@ namespace PadoruManager.Model
         /// <summary>
         /// The relative image path inside the local collection directory
         /// </summary>
-        public string ImagePathx { get; set; }
+        public string ImagePath { get; set; }
 
         /// <summary>
         /// This Character's name
@@ -52,9 +52,13 @@ namespace PadoruManager.Model
         public string MALId { get; set; }
 
         /// <summary>
+        /// The Name of the Person that contributed the image (=/= creator)
+        /// </summary>
+        public string ImageContributor { get; set; }
+
+        /// <summary>
         /// The Name of the Person that created the image
         /// </summary>
-        /// <remarks>This field is optional and may be null/empty</remarks>
         public string ImageCreator { get; set; }
 
         /// <summary>

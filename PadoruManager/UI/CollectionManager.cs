@@ -139,10 +139,10 @@ namespace PadoruManager.UI
             foreach (PadoruEntry entry in entries)
             {
                 //load image from entry (local path ONLY)
-                if (string.IsNullOrWhiteSpace(entry.ImagePathx)) continue;
+                if (string.IsNullOrWhiteSpace(entry.ImagePath)) continue;
 
                 //check that file exists
-                string localImg = Path.Combine(entry.CollectionRoot, entry.ImagePathx);
+                string localImg = Path.Combine(entry.CollectionRoot, entry.ImagePath);
                 if (!File.Exists(localImg)) continue;
                 Image entryImg = Image.FromFile(localImg);
 

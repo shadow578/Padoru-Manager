@@ -82,7 +82,7 @@ namespace PadoruManager.UI
         void UiFromEntry(PadoruEntry entry)
         {
             txtImageUrl.Text = entry.ImageUrl;
-            txtImagePath.Text = !string.IsNullOrWhiteSpace(entry.ImagePathx) ? Path.Combine(entry.CollectionRoot, entry.ImagePathx) : "";
+            txtImagePath.Text = !string.IsNullOrWhiteSpace(entry.ImagePath) ? Path.Combine(entry.CollectionRoot, entry.ImagePath) : "";
             txtCharacterName.Text = entry.Name;
             chkCharacterFemale.Checked = entry.IsFemale;
             txtImageCreator.Text = entry.ImageCreator;
@@ -116,7 +116,7 @@ namespace PadoruManager.UI
             PadoruEntry entry = new PadoruEntry()
             {
                 ImageUrl = txtImageUrl.Text,
-                ImagePathx = (!string.IsNullOrWhiteSpace(txtImagePath.Text) ? Utils.MakeRelativePath(CollectionRootPath, txtImagePath.Text) : ""),
+                ImagePath = (!string.IsNullOrWhiteSpace(txtImagePath.Text) ? Utils.MakeRelativePath(CollectionRootPath, txtImagePath.Text) : ""),
                 Name = txtCharacterName.Text,
                 IsFemale = chkCharacterFemale.Checked,
                 MALName = txtSelectedMalName.Text,
@@ -205,6 +205,20 @@ namespace PadoruManager.UI
             return characterEntries;
         }
 
+        /// <summary>
+        /// Check if all required fields are filled
+        /// </summary>
+        /// <returns>are all required fields filled?</returns>
+        bool CheckRequiredFields()
+        {
+            //required are: URL, PATH, Name, Creator Name, Contributor
+            return !string.IsNullOrWhiteSpace(txtImageUrl.Text)
+                && !string.IsNullOrWhiteSpace(txtImagePath.Text)
+                && !string.IsNullOrWhiteSpace(txtCharacterName.Text)
+                && !string.IsNullOrWhiteSpace(txtImageContributor.Text)
+                && !string.IsNullOrWhiteSpace(txtImageCreator.Text);
+        }
+
         #region UI Events
         void OnCancelClick(object sender, EventArgs e)
         {
@@ -214,9 +228,7 @@ namespace PadoruManager.UI
 
         void OnFinishClick(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtImageUrl.Text)
-                || string.IsNullOrWhiteSpace(txtImagePath.Text)
-                || string.IsNullOrWhiteSpace(txtCharacterName.Text))
+            if (!CheckRequiredFields())
             {
                 //not all required fields are set!
                 MessageBox.Show(this, "There are required values missing!\n(All fields marked with * are reqiured)", "Fields Missing", MessageBoxButtons.OK);

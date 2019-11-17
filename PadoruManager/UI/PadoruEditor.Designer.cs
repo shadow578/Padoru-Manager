@@ -38,6 +38,7 @@
             System.Windows.Forms.Label lbMalId;
             System.Windows.Forms.Label lbName;
             System.Windows.Forms.GroupBox groupCredits;
+            System.Windows.Forms.Label lbContributor;
             System.Windows.Forms.Label lbSource;
             System.Windows.Forms.Label lbCreator;
             System.Windows.Forms.GroupBox groupMalPreview;
@@ -51,6 +52,7 @@
             this.chkCharacterFemale = new System.Windows.Forms.CheckBox();
             this.txtCharacterName = new System.Windows.Forms.TextBox();
             this.txtImageSource = new System.Windows.Forms.TextBox();
+            this.txtImageContributor = new System.Windows.Forms.TextBox();
             this.txtImageCreator = new System.Windows.Forms.TextBox();
             this.ppvMalResultPreview = new PadoruManager.UI.PadoruPreview();
             groupImage = new System.Windows.Forms.GroupBox();
@@ -63,6 +65,7 @@
             lbMalId = new System.Windows.Forms.Label();
             lbName = new System.Windows.Forms.Label();
             groupCredits = new System.Windows.Forms.GroupBox();
+            lbContributor = new System.Windows.Forms.Label();
             lbSource = new System.Windows.Forms.Label();
             lbCreator = new System.Windows.Forms.Label();
             groupMalPreview = new System.Windows.Forms.GroupBox();
@@ -233,21 +236,32 @@
             // 
             // groupCredits
             // 
+            groupCredits.Controls.Add(lbContributor);
             groupCredits.Controls.Add(lbSource);
             groupCredits.Controls.Add(this.txtImageSource);
+            groupCredits.Controls.Add(this.txtImageContributor);
             groupCredits.Controls.Add(lbCreator);
             groupCredits.Controls.Add(this.txtImageCreator);
             groupCredits.Location = new System.Drawing.Point(15, 312);
             groupCredits.Name = "groupCredits";
-            groupCredits.Size = new System.Drawing.Size(414, 74);
+            groupCredits.Size = new System.Drawing.Size(414, 102);
             groupCredits.TabIndex = 2;
             groupCredits.TabStop = false;
             groupCredits.Text = "Credits";
             // 
+            // lbContributor
+            // 
+            lbContributor.AutoSize = true;
+            lbContributor.Location = new System.Drawing.Point(6, 22);
+            lbContributor.Name = "lbContributor";
+            lbContributor.Size = new System.Drawing.Size(62, 13);
+            lbContributor.TabIndex = 21;
+            lbContributor.Text = "Contributor*";
+            // 
             // lbSource
             // 
             lbSource.AutoSize = true;
-            lbSource.Location = new System.Drawing.Point(6, 48);
+            lbSource.Location = new System.Drawing.Point(6, 74);
             lbSource.Name = "lbSource";
             lbSource.Size = new System.Drawing.Size(41, 13);
             lbSource.TabIndex = 9;
@@ -255,26 +269,33 @@
             // 
             // txtImageSource
             // 
-            this.txtImageSource.Location = new System.Drawing.Point(53, 45);
+            this.txtImageSource.Location = new System.Drawing.Point(68, 71);
             this.txtImageSource.Name = "txtImageSource";
-            this.txtImageSource.Size = new System.Drawing.Size(354, 20);
-            this.txtImageSource.TabIndex = 20;
+            this.txtImageSource.Size = new System.Drawing.Size(339, 20);
+            this.txtImageSource.TabIndex = 30;
+            // 
+            // txtImageContributor
+            // 
+            this.txtImageContributor.Location = new System.Drawing.Point(70, 19);
+            this.txtImageContributor.Name = "txtImageContributor";
+            this.txtImageContributor.Size = new System.Drawing.Size(223, 20);
+            this.txtImageContributor.TabIndex = 10;
             // 
             // lbCreator
             // 
             lbCreator.AutoSize = true;
-            lbCreator.Location = new System.Drawing.Point(6, 22);
+            lbCreator.Location = new System.Drawing.Point(6, 48);
             lbCreator.Name = "lbCreator";
-            lbCreator.Size = new System.Drawing.Size(41, 13);
+            lbCreator.Size = new System.Drawing.Size(45, 13);
             lbCreator.TabIndex = 7;
-            lbCreator.Text = "Creator";
+            lbCreator.Text = "Creator*";
             // 
             // txtImageCreator
             // 
-            this.txtImageCreator.Location = new System.Drawing.Point(53, 19);
+            this.txtImageCreator.Location = new System.Drawing.Point(68, 45);
             this.txtImageCreator.Name = "txtImageCreator";
-            this.txtImageCreator.Size = new System.Drawing.Size(240, 20);
-            this.txtImageCreator.TabIndex = 10;
+            this.txtImageCreator.Size = new System.Drawing.Size(225, 20);
+            this.txtImageCreator.TabIndex = 20;
             // 
             // groupMalPreview
             // 
@@ -298,7 +319,7 @@
             // 
             // btnCancel
             // 
-            btnCancel.Location = new System.Drawing.Point(15, 392);
+            btnCancel.Location = new System.Drawing.Point(15, 420);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new System.Drawing.Size(117, 23);
             btnCancel.TabIndex = 1010;
@@ -308,7 +329,7 @@
             // 
             // btnFinish
             // 
-            btnFinish.Location = new System.Drawing.Point(312, 392);
+            btnFinish.Location = new System.Drawing.Point(312, 420);
             btnFinish.Name = "btnFinish";
             btnFinish.Size = new System.Drawing.Size(117, 23);
             btnFinish.TabIndex = 1000;
@@ -356,5 +377,6 @@
         private System.Windows.Forms.TextBox txtImageCreator;
         private PadoruPreview ppvMalResultPreview;
         private System.Windows.Forms.TextBox txtSelectedMalId;
+        private System.Windows.Forms.TextBox txtImageContributor;
     }
 }
