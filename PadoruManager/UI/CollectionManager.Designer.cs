@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.GroupBox groupSelectionResults;
             System.Windows.Forms.Button btnOpenCollection;
             this.entrySelectionPanel = new System.Windows.Forms.FlowLayoutPanel();
@@ -39,9 +40,13 @@
             this.btnRemoveCurrent = new System.Windows.Forms.Button();
             this.chkEnableSaveScript = new System.Windows.Forms.CheckBox();
             this.chkAutoSave = new System.Windows.Forms.CheckBox();
+            this.padoruPreviewContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             groupSelectionResults = new System.Windows.Forms.GroupBox();
             btnOpenCollection = new System.Windows.Forms.Button();
             groupSelectionResults.SuspendLayout();
+            this.padoruPreviewContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupSelectionResults
@@ -148,9 +153,31 @@
             this.chkAutoSave.Location = new System.Drawing.Point(248, 405);
             this.chkAutoSave.Name = "chkAutoSave";
             this.chkAutoSave.Size = new System.Drawing.Size(73, 17);
-            this.chkAutoSave.TabIndex = 1071;
+            this.chkAutoSave.TabIndex = 1051;
             this.chkAutoSave.Text = "AutoSave";
             this.chkAutoSave.UseVisualStyleBackColor = true;
+            // 
+            // padoruPreviewContextMenu
+            // 
+            this.padoruPreviewContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.editToolStripMenuItem,
+            this.removeToolStripMenuItem});
+            this.padoruPreviewContextMenu.Name = "padoruPreviewContextMenu";
+            this.padoruPreviewContextMenu.Size = new System.Drawing.Size(181, 70);
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.editToolStripMenuItem.Text = "Edit";
+            this.editToolStripMenuItem.Click += new System.EventHandler(this.OnEditCurrentClick);
+            // 
+            // removeToolStripMenuItem
+            // 
+            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeToolStripMenuItem.Text = "Remove";
+            this.removeToolStripMenuItem.Click += new System.EventHandler(this.OnRemoveCurrentClick);
             // 
             // CollectionManager
             // 
@@ -176,6 +203,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClosing);
             this.Load += new System.EventHandler(this.OnLoad);
             groupSelectionResults.ResumeLayout(false);
+            this.padoruPreviewContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -191,5 +219,8 @@
         private System.Windows.Forms.Button btnRemoveCurrent;
         private System.Windows.Forms.CheckBox chkEnableSaveScript;
         private System.Windows.Forms.CheckBox chkAutoSave;
+        private System.Windows.Forms.ContextMenuStrip padoruPreviewContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
     }
 }

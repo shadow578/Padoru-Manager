@@ -167,7 +167,7 @@ namespace PadoruManager.UI
                     Name = entry.Id.ToString(),
                     TabIndex = tabIndex++
                 };
-                preview.Click += OnAnyPreviewClick;
+                preview.MouseClick += OnAnyPreviewClick;      
 
                 //add preview to selection panel
                 entrySelectionPanel.Controls.Add(preview);
@@ -399,7 +399,7 @@ echo Collection dir: %1");
             Refresh();
         }
 
-        void OnAnyPreviewClick(object sender, EventArgs e)
+        void OnAnyPreviewClick(object sender, MouseEventArgs e)
         {
             if (!(sender is PadoruPreview preview)) return;
 
@@ -412,6 +412,16 @@ echo Collection dir: %1");
             //set selected id
             currentlySelectedEntryId = uid;
             Refresh();
+
+            //if is rightclick, show context menu
+            if(e.Button == MouseButtons.Right)
+            {
+                //get click position
+                Point clickPos = MousePosition;
+
+                //open context menu at click position
+                padoruPreviewContextMenu.Show(clickPos);
+            }
         }
 
         void OnEditCurrentClick(object sender, EventArgs e)

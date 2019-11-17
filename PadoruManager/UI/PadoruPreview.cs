@@ -79,5 +79,11 @@ namespace PadoruManager.UI
             //redirect to control click handler
             OnClick(e);
         }
+
+        void OnAnyMouseClick(object sender, MouseEventArgs e)
+        {
+            //redirect to control click handler
+            OnMouseClick(e);
+        }
     }
 }

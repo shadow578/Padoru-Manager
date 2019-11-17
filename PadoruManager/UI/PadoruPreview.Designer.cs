@@ -41,7 +41,7 @@
             this.imgPadoru.Size = new System.Drawing.Size(90, 120);
             this.imgPadoru.TabIndex = 0;
             this.imgPadoru.TabStop = false;
-            this.imgPadoru.Click += new System.EventHandler(this.OnAnyClick);
+            this.imgPadoru.MouseClick += new System.Windows.Forms.MouseEventHandler(this.OnAnyMouseClick);
             // 
             // lbName
             // 
@@ -51,7 +51,7 @@
             this.lbName.TabIndex = 1;
             this.lbName.Text = "<Name>";
             this.lbName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lbName.Click += new System.EventHandler(this.OnAnyClick);
+            this.lbName.MouseClick += new System.Windows.Forms.MouseEventHandler(this.OnAnyMouseClick);
             // 
             // PadoruPreview
             // 
