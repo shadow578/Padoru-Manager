@@ -38,6 +38,7 @@
             this.btnEditCurrent = new System.Windows.Forms.Button();
             this.btnRemoveCurrent = new System.Windows.Forms.Button();
             this.chkEnableSaveScript = new System.Windows.Forms.CheckBox();
+            this.chkAutoSave = new System.Windows.Forms.CheckBox();
             groupSelectionResults = new System.Windows.Forms.GroupBox();
             btnOpenCollection = new System.Windows.Forms.Button();
             groupSelectionResults.SuspendLayout();
@@ -48,7 +49,7 @@
             groupSelectionResults.Controls.Add(this.entrySelectionPanel);
             groupSelectionResults.Location = new System.Drawing.Point(12, 39);
             groupSelectionResults.Name = "groupSelectionResults";
-            groupSelectionResults.Size = new System.Drawing.Size(492, 356);
+            groupSelectionResults.Size = new System.Drawing.Size(571, 356);
             groupSelectionResults.TabIndex = 100;
             groupSelectionResults.TabStop = false;
             groupSelectionResults.Text = "Select Entry";
@@ -59,12 +60,12 @@
             this.entrySelectionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.entrySelectionPanel.Location = new System.Drawing.Point(3, 16);
             this.entrySelectionPanel.Name = "entrySelectionPanel";
-            this.entrySelectionPanel.Size = new System.Drawing.Size(486, 337);
+            this.entrySelectionPanel.Size = new System.Drawing.Size(565, 337);
             this.entrySelectionPanel.TabIndex = 100;
             // 
             // btnOpenCollection
             // 
-            btnOpenCollection.Location = new System.Drawing.Point(248, 401);
+            btnOpenCollection.Location = new System.Drawing.Point(327, 401);
             btnOpenCollection.Name = "btnOpenCollection";
             btnOpenCollection.Size = new System.Drawing.Size(125, 23);
             btnOpenCollection.TabIndex = 1060;
@@ -74,7 +75,7 @@
             // 
             // btnAddNew
             // 
-            this.btnAddNew.Location = new System.Drawing.Point(222, 10);
+            this.btnAddNew.Location = new System.Drawing.Point(301, 9);
             this.btnAddNew.Name = "btnAddNew";
             this.btnAddNew.Size = new System.Drawing.Size(90, 23);
             this.btnAddNew.TabIndex = 20;
@@ -84,7 +85,7 @@
             // 
             // btnSaveCollection
             // 
-            this.btnSaveCollection.Location = new System.Drawing.Point(379, 401);
+            this.btnSaveCollection.Location = new System.Drawing.Point(458, 401);
             this.btnSaveCollection.Name = "btnSaveCollection";
             this.btnSaveCollection.Size = new System.Drawing.Size(125, 23);
             this.btnSaveCollection.TabIndex = 1070;
@@ -95,7 +96,7 @@
             // lbEntrysCount
             // 
             this.lbEntrysCount.AutoSize = true;
-            this.lbEntrysCount.Location = new System.Drawing.Point(12, 406);
+            this.lbEntrysCount.Location = new System.Drawing.Point(9, 406);
             this.lbEntrysCount.Name = "lbEntrysCount";
             this.lbEntrysCount.Size = new System.Drawing.Size(109, 13);
             this.lbEntrysCount.TabIndex = 2;
@@ -103,15 +104,15 @@
             // 
             // txtCollectionSearch
             // 
-            this.txtCollectionSearch.Location = new System.Drawing.Point(12, 12);
+            this.txtCollectionSearch.Location = new System.Drawing.Point(12, 11);
             this.txtCollectionSearch.Name = "txtCollectionSearch";
-            this.txtCollectionSearch.Size = new System.Drawing.Size(204, 20);
+            this.txtCollectionSearch.Size = new System.Drawing.Size(230, 20);
             this.txtCollectionSearch.TabIndex = 10;
             this.txtCollectionSearch.TextChanged += new System.EventHandler(this.OnSearchTextChange);
             // 
             // btnEditCurrent
             // 
-            this.btnEditCurrent.Location = new System.Drawing.Point(318, 10);
+            this.btnEditCurrent.Location = new System.Drawing.Point(397, 10);
             this.btnEditCurrent.Name = "btnEditCurrent";
             this.btnEditCurrent.Size = new System.Drawing.Size(90, 23);
             this.btnEditCurrent.TabIndex = 30;
@@ -121,7 +122,7 @@
             // 
             // btnRemoveCurrent
             // 
-            this.btnRemoveCurrent.Location = new System.Drawing.Point(414, 9);
+            this.btnRemoveCurrent.Location = new System.Drawing.Point(493, 9);
             this.btnRemoveCurrent.Name = "btnRemoveCurrent";
             this.btnRemoveCurrent.Size = new System.Drawing.Size(90, 23);
             this.btnRemoveCurrent.TabIndex = 40;
@@ -141,6 +142,16 @@
             this.chkEnableSaveScript.Text = "SaveScript";
             this.chkEnableSaveScript.UseVisualStyleBackColor = true;
             // 
+            // chkAutoSave
+            // 
+            this.chkAutoSave.AutoSize = true;
+            this.chkAutoSave.Location = new System.Drawing.Point(248, 405);
+            this.chkAutoSave.Name = "chkAutoSave";
+            this.chkAutoSave.Size = new System.Drawing.Size(73, 17);
+            this.chkAutoSave.TabIndex = 1071;
+            this.chkAutoSave.Text = "AutoSave";
+            this.chkAutoSave.UseVisualStyleBackColor = true;
+            // 
             // CollectionManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -148,6 +159,7 @@
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(731, 507);
+            this.Controls.Add(this.chkAutoSave);
             this.Controls.Add(this.chkEnableSaveScript);
             this.Controls.Add(this.btnRemoveCurrent);
             this.Controls.Add(this.btnEditCurrent);
@@ -159,6 +171,7 @@
             this.Controls.Add(groupSelectionResults);
             this.MaximizeBox = false;
             this.Name = "CollectionManager";
+            this.Padding = new System.Windows.Forms.Padding(12);
             this.Text = "Collection Manager";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClosing);
             this.Load += new System.EventHandler(this.OnLoad);
@@ -177,5 +190,6 @@
         private System.Windows.Forms.Button btnEditCurrent;
         private System.Windows.Forms.Button btnRemoveCurrent;
         private System.Windows.Forms.CheckBox chkEnableSaveScript;
+        private System.Windows.Forms.CheckBox chkAutoSave;
     }
 }

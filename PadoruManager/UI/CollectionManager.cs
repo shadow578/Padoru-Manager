@@ -277,6 +277,31 @@ echo Collection dir: %1");
             }
         }
 
+        /// <summary>
+        /// automatically save the collection
+        /// </summary>
+        /// <param name="autoSave">is this a call from a autosave routine?</param>
+        void SaveCollection(bool autoSave = false)
+        {
+            //check if autosave is active
+            if (autoSave && !chkAutoSave.Checked) return;
+
+            //check collection exists
+            if (currentCollection == null)
+            {
+                MessageBox.Show(this, "No Collection is currently active! Please Create a new one before saving.", "No Collection", MessageBoxButtons.OK);
+                return;
+            }
+
+            //save collection
+            currentCollection.ToFile();
+            RunSaveScript();
+
+            //show confirmation if not autosaving
+            if (!autoSave)
+                MessageBox.Show(this, "Saved Changes!", "Saved Changes", MessageBoxButtons.OK);
+        }
+
         #region UI Events
         public override void Refresh()
         {
@@ -336,17 +361,7 @@ echo Collection dir: %1");
 
         void OnSaveCollectionClick(object sender, EventArgs e)
         {
-            //check collection exists
-            if (currentCollection == null)
-            {
-                MessageBox.Show(this, "No Collection is currently active!", "No Collection", MessageBoxButtons.OK);
-                return;
-            }
-
-            //save collection
-            currentCollection.ToFile();
-            RunSaveScript();
-            MessageBox.Show(this, "Saved Changes!", "Saved Changes", MessageBoxButtons.OK);
+            SaveCollection(false);
         }
 
         void OnAddNewClick(object sender, EventArgs e)
@@ -371,6 +386,7 @@ echo Collection dir: %1");
             {
                 currentCollection.Entries.Add(newEntry);
                 currentlySelectedEntryId = newEntry.Id;
+                SaveCollection(true);
             }
 
             //update ui
@@ -417,6 +433,7 @@ echo Collection dir: %1");
             int index = currentCollection.Entries.IndexOf(toEdit);
             currentCollection.Entries.Remove(toEdit);
             currentCollection.Entries.Insert(index, editedEntry);
+            SaveCollection(true);
 
             //update ui
             Refresh();
@@ -433,6 +450,7 @@ echo Collection dir: %1");
 
             //remove element
             currentCollection.Entries.Remove(toRemove);
+            SaveCollection(true);
 
             //update ui
             currentlySelectedEntryId = -1;
@@ -444,7 +462,7 @@ echo Collection dir: %1");
             DialogResult res = MessageBox.Show(this, "If you close, all unchanged changes will be lost!\nDo you want to save now?", "Save now?", MessageBoxButtons.YesNoCancel);
             if (res == DialogResult.Yes)
             {
-                OnSaveCollectionClick(sender, e);
+                SaveCollection(false);
             }
             if (res == DialogResult.Cancel) e.Cancel = true;
         }
