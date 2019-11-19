@@ -1,4 +1,4 @@
-﻿using PadoruManager.Model;
+﻿using PadoruLib.Padoru.Model;
 using PadoruManager.Util;
 using System;
 using System.Collections.Generic;
@@ -29,7 +29,7 @@ namespace PadoruManager.UI
         /// <summary>
         /// The currently selected entry
         /// </summary>
-        long currentlySelectedEntryId = -1;
+        Guid currentlySelectedEntryId = Guid.Empty;
 
         /// <summary>
         /// initialize the ui
@@ -113,7 +113,7 @@ namespace PadoruManager.UI
             {
                 if ((!string.IsNullOrWhiteSpace(entry.Name) && entry.Name.ContainsIgnoreCase(query))
                     || (!string.IsNullOrWhiteSpace(entry.MALName) && entry.MALName.ContainsIgnoreCase(query))
-                    || (!string.IsNullOrWhiteSpace(entry.MALId) && entry.MALId.ContainsIgnoreCase(query))
+                    || (entry.MALId.HasValue && entry.MALId.ToString().ContainsIgnoreCase(query))
                     || (!string.IsNullOrWhiteSpace(entry.ImageContributor) && entry.ImageContributor.ContainsIgnoreCase(query))
                     || (!string.IsNullOrWhiteSpace(entry.ImageCreator) && entry.ImageCreator.ContainsIgnoreCase(query)))
                 {
@@ -132,26 +132,30 @@ namespace PadoruManager.UI
         /// <param name="entries">the entrys to show</param>
         void ShowOnSelectionPanel(List<PadoruEntry> entries)
         {
+            //dispose preview images
+            foreach(Control c in entrySelectionPanel.Controls)
+            {
+                //skip all non previews
+                if (!(c is PadoruPreview ppreview)) continue;
+
+                //dispose image and control
+                ppreview.PreviewImage.Dispose();
+                ppreview.Dispose();
+            }
+
             //reset current selection panel
             entrySelectionPanel.Controls.Clear();
 
             //enumerate all entries
             PadoruPreview preview;
+            Image entryImg;
+            Image fallbackImg = Properties.Resources.no_padoru;
             int tabIndex = 0;
             foreach (PadoruEntry entry in entries)
             {
                 //get image for preview, fallback to no_padoru
-                Image entryImg = Properties.Resources.no_padoru;
-                if (!string.IsNullOrWhiteSpace(entry.ImagePath))
-                {
-                    //create absolute path, check that it exists
-                    string localImg = Path.Combine(entry.CollectionRoot, entry.ImagePath);
-                    if (File.Exists(localImg))
-                    {
-                        entryImg = Image.FromFile(localImg);
-                    }
-                }
-
+                entryImg = entry.GetImageLocal(fallbackImg);
+                
                 //get display name
                 string entryName = "<NAME>";
                 if (!string.IsNullOrWhiteSpace(entry.Name))
@@ -164,10 +168,10 @@ namespace PadoruManager.UI
                 {
                     DisplayName = entryName,
                     PreviewImage = entryImg,
-                    Name = entry.Id.ToString(),
+                    Name = entry.UID.ToString(),
                     TabIndex = tabIndex++
                 };
-                preview.MouseClick += OnAnyPreviewClick;      
+                preview.MouseClick += OnAnyPreviewClick;
 
                 //add preview to selection panel
                 entrySelectionPanel.Controls.Add(preview);
@@ -202,13 +206,13 @@ namespace PadoruManager.UI
                 if (!(ctrl is PadoruPreview preview)) continue;
 
                 //set thick border if is selected item
-                if (!long.TryParse(preview.Name, out long uid))
+                if (!Guid.TryParse(preview.Name, out Guid uid))
                 {
                     preview.ThickBorders = false;
                     continue;
                 }
 
-                preview.ThickBorders = uid == currentlySelectedEntryId;
+                preview.ThickBorders = uid.Equals(currentlySelectedEntryId);
             }
         }
 
@@ -219,13 +223,13 @@ namespace PadoruManager.UI
         PadoruEntry GetSelection()
         {
             //check that selection and collection are ok
-            if (currentCollection == null || currentlySelectedEntryId == -1) return null;
+            if (currentCollection == null || currentlySelectedEntryId.Equals(Guid.Empty)) return null;
 
             //remove current selection from collection
             PadoruEntry selectedEntry = null;
             foreach (PadoruEntry entry in currentCollection.Entries)
             {
-                if (entry.Id == currentlySelectedEntryId)
+                if (entry.UID.Equals(currentlySelectedEntryId))
                 {
                     selectedEntry = entry;
                     break;
@@ -265,7 +269,6 @@ echo Collection dir: %1");
             try
             {
                 ProcessStartInfo psi = new ProcessStartInfo(scriptPath, collectionDir);
-                psi.CreateNoWindow = true;
                 using (Process scriptProc = Process.Start(psi))
                 {
                     scriptProc.WaitForExit(30000);
@@ -314,12 +317,12 @@ echo Collection dir: %1");
             btnAddNew.Enabled = hasCollection;
             btnSaveCollection.Enabled = hasCollection;
 
-            bool hasSelection = currentlySelectedEntryId != -1;
+            bool hasSelection = !currentlySelectedEntryId.Equals(Guid.Empty);
             btnEditCurrent.Enabled = hasSelection;
             btnRemoveCurrent.Enabled = hasSelection;
 
             //update search results
-            UpdateSearch();
+            //UpdateSearch();
 
             //update selected preview item
             UpdateSelection();
@@ -332,20 +335,23 @@ echo Collection dir: %1");
             if (!string.IsNullOrWhiteSpace(lastCollection))
             {
                 LoadCollection(lastCollection);
-                currentlySelectedEntryId = -1;
+                currentlySelectedEntryId = Guid.Empty;
             }
 
             //update ui
+            UpdateSearch();
             Refresh();
         }
 
         void OnOpenCollectionClick(object sender, EventArgs e)
         {
             //select file with dialog
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "Padoru Collection Definitions|*.json";
-            ofd.CheckFileExists = false;
-            ofd.Multiselect = false;
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "Padoru Collection Definitions|*.json",
+                CheckFileExists = false,
+                Multiselect = false
+            };
 
             //show dialog
             if (ofd.ShowDialog() != DialogResult.OK) return;
@@ -355,7 +361,7 @@ echo Collection dir: %1");
             SaveLastCollectionFilePath(ofd.FileName);
 
             //update ui
-            currentlySelectedEntryId = -1;
+            currentlySelectedEntryId = Guid.Empty;
             Refresh();
         }
 
@@ -374,8 +380,10 @@ echo Collection dir: %1");
             }
 
             //create Padoru Editor and let user create new entry
-            PadoruEditor editor = new PadoruEditor();
-            editor.CollectionRootPath = Path.GetDirectoryName(currentCollection.LoadedFrom);
+            PadoruEditor editor = new PadoruEditor
+            {
+                EditingParentCollection = currentCollection
+            };
             if (editor.ShowDialog() != DialogResult.OK) return;
 
             //Get new entry
@@ -385,7 +393,7 @@ echo Collection dir: %1");
             if (newEntry != null)
             {
                 currentCollection.Entries.Add(newEntry);
-                currentlySelectedEntryId = newEntry.Id;
+                currentlySelectedEntryId = newEntry.UID;
                 SaveCollection(true);
             }
 
@@ -395,7 +403,8 @@ echo Collection dir: %1");
 
         void OnSearchTextChange(object sender, EventArgs e)
         {
-            currentlySelectedEntryId = -1;
+            currentlySelectedEntryId = Guid.Empty;
+            UpdateSearch();
             Refresh();
         }
 
@@ -404,7 +413,7 @@ echo Collection dir: %1");
             if (!(sender is PadoruPreview preview)) return;
 
             //get unique entry id from the clicked preview
-            if (!long.TryParse(preview.Name, out long uid))
+            if (!Guid.TryParse(preview.Name, out Guid uid))
             {
                 return;
             }
@@ -414,7 +423,7 @@ echo Collection dir: %1");
             Refresh();
 
             //if is rightclick, show context menu
-            if(e.Button == MouseButtons.Right)
+            if (e.Button == MouseButtons.Right)
             {
                 //get click position
                 Point clickPos = MousePosition;
@@ -431,8 +440,10 @@ echo Collection dir: %1");
             if (toEdit == null) return;
 
             //show padoru editor
-            PadoruEditor editor = new PadoruEditor();
-            editor.CurrentStateEntry = toEdit;
+            PadoruEditor editor = new PadoruEditor
+            {
+                CurrentStateEntry = toEdit
+            };
             if (editor.ShowDialog() == DialogResult.Cancel) return;
 
             //get edited entry
@@ -463,7 +474,7 @@ echo Collection dir: %1");
             SaveCollection(true);
 
             //update ui
-            currentlySelectedEntryId = -1;
+            currentlySelectedEntryId = Guid.Empty;
             Refresh();
         }
 

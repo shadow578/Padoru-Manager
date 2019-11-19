@@ -1,6 +1,5 @@
 ﻿using JikanDotNet;
-using PadoruManager.Model;
-using PadoruManager.Util;
+using PadoruLib.Padoru.Model;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using LibUtil = PadoruLib.Utility.Util;
 
 namespace PadoruManager.UI
 {
@@ -35,19 +35,19 @@ namespace PadoruManager.UI
         }
 
         /// <summary>
-        /// The path to the root directory of the collection the current entry is part of
+        /// The parent collection the current entry is part of
         /// </summary>
-        public string CollectionRootPath { get; set; }
+        public PadoruCollection EditingParentCollection { get; set; }
 
         /// <summary>
         /// The unique id of the entry beign edited
         /// </summary>
-        long editingId = -1;
+        Guid editingId;
 
         /// <summary>
         /// Shared jikan instance for mal api requests
         /// </summary>
-        Jikan jikan;
+        readonly Jikan jikan;
 
         /// <summary>
         /// was the character name field changed?
@@ -92,7 +92,7 @@ namespace PadoruManager.UI
         void UiFromEntry(PadoruEntry entry)
         {
             txtImageUrl.Text = entry.ImageUrl;
-            txtImagePath.Text = !string.IsNullOrWhiteSpace(entry.ImagePath) ? Path.Combine(entry.CollectionRoot, entry.ImagePath) : "";
+            txtImagePath.Text = entry.ImageAbsolutePath;
             txtCharacterName.Text = entry.Name;
             chkCharacterFemale.Checked = entry.IsFemale;
             txtImageContributor.Text = entry.ImageContributor;
@@ -100,22 +100,19 @@ namespace PadoruManager.UI
             txtImageSource.Text = entry.ImageSource;
 
             txtSelectedMalName.Text = entry.MALName;
-            txtSelectedMalId.Text = entry.MALId;
+            txtSelectedMalId.Text = entry.MALId.HasValue ? entry.MALId.ToString() : "";
 
             //parse entry mal id
-            if (long.TryParse(entry.MALId, out long malId))
+            if (entry.MALId.HasValue)
             {
-                loadedEntryMalId = malId;
+                loadedEntryMalId = entry.MALId.Value;
             }
 
             //save id
-            editingId = entry.Id;
+            editingId = entry.UID;
 
-            //save root path
-            if (!string.IsNullOrWhiteSpace(entry.CollectionRoot))
-            {
-                CollectionRootPath = entry.CollectionRoot;
-            }
+            //save parent collection
+            EditingParentCollection = entry.ParentCollection;
         }
 
         /// <summary>
@@ -124,21 +121,30 @@ namespace PadoruManager.UI
         /// <returns>the padoru entry</returns>
         PadoruEntry UiToEntry()
         {
+            //create entry instance
             PadoruEntry entry = new PadoruEntry()
             {
                 ImageUrl = txtImageUrl.Text,
-                ImagePath = (!string.IsNullOrWhiteSpace(txtImagePath.Text) ? Utils.MakeRelativePath(CollectionRootPath, txtImagePath.Text) : ""),
                 Name = txtCharacterName.Text,
                 IsFemale = chkCharacterFemale.Checked,
                 MALName = txtSelectedMalName.Text,
-                MALId = txtSelectedMalId.Text,
+                MALId = null,
                 ImageContributor = txtImageContributor.Text,
                 ImageCreator = txtImageCreator.Text,
                 ImageSource = txtImageSource.Text
             };
 
-            if (editingId != -1) entry.Id = editingId;
-            if (!string.IsNullOrWhiteSpace(CollectionRootPath)) entry.CollectionRoot = CollectionRootPath;
+            //parse and set mal id
+            if (!long.TryParse(txtSelectedMalId.Text, out long malId))
+            {
+                entry.MALId = malId;
+            }
+
+            //set image path
+            entry.SetImagePath(txtImagePath.Text);
+
+            if (editingId.Equals(Guid.Empty)) entry.UID = editingId;
+            if (EditingParentCollection != null) entry.ParentCollection = EditingParentCollection;
             return entry;
         }
 
@@ -307,14 +313,18 @@ namespace PadoruManager.UI
             }
 
             //image path is special because it also has to be possible to be made a relative path
-            if (string.IsNullOrWhiteSpace(txtImagePath.Text) || string.IsNullOrWhiteSpace(Utils.MakeRelativePath(CollectionRootPath, txtImagePath.Text)))
+            if (EditingParentCollection != null)
             {
-                anyMissing = true;
-                txtImagePath.BackColor = bgBd;
-            }
-            else
-            {
-                txtImagePath.BackColor = bgOk;
+                string collectionRoot = Path.GetDirectoryName(EditingParentCollection.LoadedFrom);
+                if (string.IsNullOrWhiteSpace(txtImagePath.Text) || string.IsNullOrWhiteSpace(LibUtil.MakeRelativePath(collectionRoot, txtImagePath.Text)))
+                {
+                    anyMissing = true;
+                    txtImagePath.BackColor = bgBd;
+                }
+                else
+                {
+                    txtImagePath.BackColor = bgOk;
+                }
             }
 
             //character name
@@ -399,10 +409,12 @@ namespace PadoruManager.UI
         void OnBrowseImagePathClick(object sender, EventArgs e)
         {
             //select file with dialog
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "PNG Files|*.png";
-            ofd.CheckFileExists = true;
-            ofd.Multiselect = false;
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "PNG Files|*.png",
+                CheckFileExists = true,
+                Multiselect = false
+            };
 
             //show dialog
             if (ofd.ShowDialog() != DialogResult.OK) return;
@@ -414,7 +426,8 @@ namespace PadoruManager.UI
             if (!string.IsNullOrWhiteSpace(txtImageUrl.Text)) return;
 
             //make relative path
-            string relPath = Utils.MakeRelativePath(CollectionRootPath, ofd.FileName);
+            string collectionRoot = Path.GetDirectoryName(EditingParentCollection.LoadedFrom);
+            string relPath = LibUtil.MakeRelativePath(collectionRoot, ofd.FileName);
             if (string.IsNullOrWhiteSpace(relPath)) return;
             relPath = relPath.Replace("\\", "/");
 
