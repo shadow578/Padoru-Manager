@@ -47,6 +47,11 @@ namespace PadoruManager.UI
         public bool ThickBorders { get; set; }
 
         /// <summary>
+        /// The UID of the entry this preview previews
+        /// </summary>
+        public Guid EntryGuid { get; set; }
+
+        /// <summary>
         /// Initialize the PadoruPreview without name and picture set
         /// </summary>
         public PadoruPreview()
