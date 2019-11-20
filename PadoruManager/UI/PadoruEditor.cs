@@ -74,6 +74,15 @@ namespace PadoruManager.UI
 
             //create jikan instance
             jikan = new Jikan(true);
+
+            //test auto complete
+            txtCharacterName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            txtCharacterName.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            AutoCompleteStringCollection c = new AutoCompleteStringCollection();
+            c.Add("Dieter");
+            c.Add("Peter");
+
+            txtCharacterName.AutoCompleteCustomSource = c;
         }
 
         /// <summary>
@@ -113,6 +122,9 @@ namespace PadoruManager.UI
 
             //save parent collection
             EditingParentCollection = entry.ParentCollection;
+
+            //build auto complete lists
+            if (entry.ParentCollection != null) PopulateAutoComplete(entry.ParentCollection);
         }
 
         /// <summary>
@@ -146,6 +158,52 @@ namespace PadoruManager.UI
             if (editingId.Equals(Guid.Empty)) entry.UID = editingId;
             if (EditingParentCollection != null) entry.ParentCollection = EditingParentCollection;
             return entry;
+        }
+
+        /// <summary>
+        /// Create and populate the auto complete lists
+        /// </summary>
+        /// <param name="collection">the collection to create the auto complete entries from</param>
+        void PopulateAutoComplete(PadoruCollection collection)
+        {
+            //auto complete for contributor name
+            BuildAutoCompleteCollection(txtImageContributor, collection.Entries, (p) => p.ImageContributor);
+
+            //auto complete for creator name
+            BuildAutoCompleteCollection(txtImageCreator, collection.Entries, (p) => p.ImageCreator);
+        }
+
+        /// <summary>
+        /// set the autocomplete collection from the given list of paduro collection, using the given
+        /// function to determine what strings to include
+        /// </summary>
+        /// <param name="txtBox">the textbox of which the auto complete list should be built</param>
+        /// <param name="entries">the list of entries to check</param>
+        /// <param name="func">the string selector function (returns string to include, string.Empty excludes the string)</param>
+        void BuildAutoCompleteCollection(TextBox txtBox, List<PadoruEntry> entries, Func<PadoruEntry, string> func)
+        {
+            //Create collection, enumerate all entries
+            AutoCompleteStringCollection acsc = new AutoCompleteStringCollection();
+            string entryString;
+            foreach (PadoruEntry entry in entries)
+            {
+                //get entry string using function
+                entryString = func(entry);
+
+                //exclude if string is string.empty
+                if (string.IsNullOrWhiteSpace(entryString)) continue;
+
+                //exclude if already in list
+                if (acsc.Contains(entryString)) continue;
+
+                //add to colleciton
+                acsc.Add(entryString);
+            }
+
+            //set autocomplete collection
+            txtBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            txtBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            txtBox.AutoCompleteCustomSource = acsc;
         }
 
         /// <summary>
