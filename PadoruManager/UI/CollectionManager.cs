@@ -133,7 +133,7 @@ namespace PadoruManager.UI
         void ShowOnSelectionPanel(List<PadoruEntry> entries)
         {
             //dispose preview images
-            foreach(Control c in entrySelectionPanel.Controls)
+            foreach (Control c in entrySelectionPanel.Controls)
             {
                 //skip all non previews
                 if (!(c is PadoruPreview ppreview)) continue;
@@ -148,14 +148,33 @@ namespace PadoruManager.UI
 
             //enumerate all entries
             PadoruPreview preview;
-            Image entryImg;
             Image fallbackImg = Properties.Resources.no_padoru;
+            Image entryImg;
+            byte[] entryImgData;
             int tabIndex = 0;
             foreach (PadoruEntry entry in entries)
             {
-                //get image for preview, fallback to no_padoru
-                entryImg = entry.GetImageLocal(fallbackImg);
-                
+                //reset previous image
+                entryImg = null;
+
+                //get image data for preview
+                entryImgData = entry.GetImageDataLocal();
+
+                //load image from data, use fallback when load failed
+                if (entryImgData != null)
+                {
+                    using(MemoryStream entryImgDataStream = new MemoryStream(entryImgData))
+                    {
+                        entryImg = Image.FromStream(entryImgDataStream);
+                    }
+                }
+
+                //use fallback if load failed
+                if (entryImg == null)
+                {
+                    entryImg = fallbackImg;
+                }
+
                 //get display name
                 string entryName = "<NAME>";
                 if (!string.IsNullOrWhiteSpace(entry.Name))
@@ -268,7 +287,7 @@ echo Collection dir: %1");
             //run the save script
             try
             {
-                ProcessStartInfo psi = new ProcessStartInfo(scriptPath, collectionDir);
+                ProcessStartInfo psi = new ProcessStartInfo(scriptPath, $"\"{collectionDir}\"");
                 using (Process scriptProc = Process.Start(psi))
                 {
                     scriptProc.WaitForExit(30000);
