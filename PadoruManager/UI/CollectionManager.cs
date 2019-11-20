@@ -132,7 +132,7 @@ namespace PadoruManager.UI
                 entrySelectionPanel.Controls.Add(preview);
 
                 //load the image for this preview async
-                imgLoadTasks.Add(GetImageFromEntry(entry).ContinueWith(async (t) =>
+                imgLoadTasks.Add(GetImageFromEntry(entry).ContinueWith((t) =>
                 {
                     //get result from load task
                     Image entryImg = t.Result;

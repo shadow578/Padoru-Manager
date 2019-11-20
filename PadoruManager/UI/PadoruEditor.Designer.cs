@@ -157,6 +157,8 @@
             // 
             this.chkCharacterFemale.AutoSize = true;
             this.chkCharacterFemale.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkCharacterFemale.Checked = true;
+            this.chkCharacterFemale.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkCharacterFemale.Location = new System.Drawing.Point(9, 49);
             this.chkCharacterFemale.Name = "chkCharacterFemale";
             this.chkCharacterFemale.Size = new System.Drawing.Size(77, 17);
@@ -290,6 +292,7 @@
             // ppvMalResultPreview
             // 
             this.ppvMalResultPreview.DisplayName = "<Name>";
+            this.ppvMalResultPreview.EntryGuid = new System.Guid("00000000-0000-0000-0000-000000000000");
             this.ppvMalResultPreview.Location = new System.Drawing.Point(6, 19);
             this.ppvMalResultPreview.Name = "ppvMalResultPreview";
             this.ppvMalResultPreview.PreviewImage = null;

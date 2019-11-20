@@ -138,8 +138,6 @@
             // chkEnableSaveScript
             // 
             this.chkEnableSaveScript.AutoSize = true;
-            this.chkEnableSaveScript.Checked = true;
-            this.chkEnableSaveScript.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEnableSaveScript.Location = new System.Drawing.Point(164, 405);
             this.chkEnableSaveScript.Name = "chkEnableSaveScript";
             this.chkEnableSaveScript.Size = new System.Drawing.Size(78, 17);
@@ -150,6 +148,8 @@
             // chkAutoSave
             // 
             this.chkAutoSave.AutoSize = true;
+            this.chkAutoSave.Checked = true;
+            this.chkAutoSave.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAutoSave.Location = new System.Drawing.Point(248, 405);
             this.chkAutoSave.Name = "chkAutoSave";
             this.chkAutoSave.Size = new System.Drawing.Size(73, 17);
@@ -163,19 +163,19 @@
             this.editToolStripMenuItem,
             this.removeToolStripMenuItem});
             this.padoruPreviewContextMenu.Name = "padoruPreviewContextMenu";
-            this.padoruPreviewContextMenu.Size = new System.Drawing.Size(181, 70);
+            this.padoruPreviewContextMenu.Size = new System.Drawing.Size(118, 48);
             // 
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.editToolStripMenuItem.Text = "Edit";
             this.editToolStripMenuItem.Click += new System.EventHandler(this.OnEditCurrentClick);
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.OnRemoveCurrentClick);
             // 
