@@ -34,6 +34,7 @@
             System.Windows.Forms.Panel pTopControls;
             System.Windows.Forms.Panel pBottomControls;
             System.Windows.Forms.Panel pCenterControls;
+            System.Windows.Forms.Button btnCreateToc;
             this.entrySelectionPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.txtCollectionSearch = new System.Windows.Forms.TextBox();
             this.btnAddNew = new System.Windows.Forms.Button();
@@ -51,6 +52,7 @@
             pTopControls = new System.Windows.Forms.Panel();
             pBottomControls = new System.Windows.Forms.Panel();
             pCenterControls = new System.Windows.Forms.Panel();
+            btnCreateToc = new System.Windows.Forms.Button();
             groupSelectionResults.SuspendLayout();
             pTopControls.SuspendLayout();
             pBottomControls.SuspendLayout();
@@ -148,6 +150,7 @@
             // 
             pBottomControls.AutoSize = true;
             pBottomControls.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            pBottomControls.Controls.Add(btnCreateToc);
             pBottomControls.Controls.Add(this.lbEntrysCount);
             pBottomControls.Controls.Add(this.btnSaveCollection);
             pBottomControls.Controls.Add(btnOpenCollection);
@@ -184,7 +187,7 @@
             // 
             this.chkEnableSaveScript.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.chkEnableSaveScript.AutoSize = true;
-            this.chkEnableSaveScript.Location = new System.Drawing.Point(358, 11);
+            this.chkEnableSaveScript.Location = new System.Drawing.Point(227, 11);
             this.chkEnableSaveScript.Name = "chkEnableSaveScript";
             this.chkEnableSaveScript.Size = new System.Drawing.Size(78, 17);
             this.chkEnableSaveScript.TabIndex = 1050;
@@ -197,7 +200,7 @@
             this.chkAutoSave.AutoSize = true;
             this.chkAutoSave.Checked = true;
             this.chkAutoSave.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAutoSave.Location = new System.Drawing.Point(442, 11);
+            this.chkAutoSave.Location = new System.Drawing.Point(311, 11);
             this.chkAutoSave.Name = "chkAutoSave";
             this.chkAutoSave.Size = new System.Drawing.Size(73, 17);
             this.chkAutoSave.TabIndex = 1051;
@@ -235,6 +238,17 @@
             this.removeToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.OnRemoveCurrentClick);
+            // 
+            // btnCreateToc
+            // 
+            btnCreateToc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            btnCreateToc.Location = new System.Drawing.Point(390, 7);
+            btnCreateToc.Name = "btnCreateToc";
+            btnCreateToc.Size = new System.Drawing.Size(125, 23);
+            btnCreateToc.TabIndex = 1071;
+            btnCreateToc.Text = "Create ToC";
+            btnCreateToc.UseVisualStyleBackColor = true;
+            btnCreateToc.Click += new System.EventHandler(this.OnCreateTocClick);
             // 
             // CollectionManager
             // 

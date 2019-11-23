@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="GitToC\TableOfContentCreator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\CollectionManager.cs">
       <SubType>Form</SubType>

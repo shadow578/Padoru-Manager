@@ -8,6 +8,17 @@ namespace PadoruManager.Util
     public static class Utils
     {
         /// <summary>
+        /// check if b is equals a, ignoring case
+        /// </summary>
+        /// <param name="a">the string to check in</param>
+        /// <param name="b">the string to check for</param>
+        /// <returns>is b equals a</returns>
+        public static bool EqualsIgnoreCase(this string a, string b)
+        {
+            return a.ToUpper().Equals(b.ToUpper());
+        }
+
+        /// <summary>
         /// check if b is contained in a, ignoring case
         /// </summary>
         /// <param name="a">the string to check in</param>

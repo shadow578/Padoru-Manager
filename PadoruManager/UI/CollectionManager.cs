@@ -1,10 +1,12 @@
 ﻿using PadoruLib.Padoru.Model;
+using PadoruManager.GitToC;
 using PadoruManager.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,6 +14,11 @@ namespace PadoruManager.UI
 {
     public partial class CollectionManager : Form
     {
+        /// <summary>
+        /// The path to the repo file
+        /// </summary>
+        const string REPO_URL_FILE_PATH = "./repobase.url";
+
         /// <summary>
         /// The file that is used to track the last opened collection file path
         /// </summary>
@@ -26,6 +33,11 @@ namespace PadoruManager.UI
         /// the name of the save script (inside the collection path)
         /// </summary>
         const string SAVE_SCRIPT_NAME = "onsave.bat";
+
+        /// <summary>
+        /// The directory name of the toc directory, inside the collection root path
+        /// </summary>
+        const string TOC_ROOT_RELATIVE_PATH = "table-of-contents";
 
         /// <summary>
         /// The currently loaded collection
@@ -414,6 +426,19 @@ echo Collection dir: %1");
                 MessageBox.Show(this, "Saved Changes!", "Saved Changes", MessageBoxButtons.OK);
         }
 
+        /// <summary>
+        /// Get the root url of the github repo the images are hosted in (raw / direct link)
+        /// </summary>
+        /// <returns>the root url, that, appended with the relative image path, forms the image url</returns>
+        string GetRepoRootPath()
+        {
+            //check file exists
+            if (!File.Exists(REPO_URL_FILE_PATH)) return string.Empty;
+
+            //read first line
+            return File.ReadAllLines(REPO_URL_FILE_PATH).FirstOrDefault();
+        }
+
         #region UI Events
         public override void Refresh()
         {
@@ -451,7 +476,10 @@ echo Collection dir: %1");
             }
 
             //initial populate selection panel
-            await PopulateSelectionPanel(currentCollection.Entries);
+            if (currentCollection != null)
+            {
+                await PopulateSelectionPanel(currentCollection.Entries);
+            }
 
             //try to restore last window size
             try
@@ -605,6 +633,40 @@ echo Collection dir: %1");
             //update ui
             currentlySelectedEntryId = Guid.Empty;
             Refresh();
+        }
+
+        async void OnCreateTocClick(object sender, EventArgs e)
+        {
+            //abort if not having a current collection
+            if (currentCollection == null || !currentCollection.LoadedLocal) return;
+
+            //get repo root url
+            string repoRoot = GetRepoRootPath().TrimEnd('/') + "/" + TOC_ROOT_RELATIVE_PATH;
+
+            //get local toc root path
+            string tocRoot = Path.Combine(Path.GetDirectoryName(currentCollection.LoadedFrom), TOC_ROOT_RELATIVE_PATH);
+
+            //check if both root paths are there
+            if (string.IsNullOrWhiteSpace(repoRoot) || string.IsNullOrWhiteSpace(tocRoot)) return;
+
+            //ask user if he wants to proceed
+            if (MessageBox.Show(this, $"This action will recreate the Table of Contents and delete any files in the directory {tocRoot}. Continue?", "Continue create ToC?", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+
+            //delete toc directory if currently exists
+            Directory.Delete(repoRoot);
+
+            //create instance of toc creator
+            TableOfContentCreator tocCreator = new TableOfContentCreator()
+            {
+                TableOfContentRemoteRoot = repoRoot,
+                TableOfContentLocalRoot = tocRoot
+            };
+
+            //create table of contents from current collection
+            await tocCreator.CreateTableOfContents(currentCollection);
+
+            //show message box that toc was created
+            MessageBox.Show(this, "Table of Contents was created!", "TOC created", MessageBoxButtons.OK);
         }
 
         void CollectionManager_ResizeEnd(object sender, EventArgs e)
