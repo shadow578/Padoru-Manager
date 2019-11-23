@@ -244,6 +244,7 @@
             this.Controls.Add(pCenterControls);
             this.Controls.Add(pBottomControls);
             this.Controls.Add(pTopControls);
+            this.DoubleBuffered = true;
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(600, 420);
             this.Name = "CollectionManager";
