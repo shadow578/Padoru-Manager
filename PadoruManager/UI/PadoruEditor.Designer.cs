@@ -390,7 +390,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(1261, 743);
+            this.ClientSize = new System.Drawing.Size(690, 516);
             this.Controls.Add(groupMal);
             this.Controls.Add(btnFinish);
             this.Controls.Add(btnCancel);
@@ -401,6 +401,7 @@
             this.MaximizeBox = false;
             this.Name = "PadoruEditor";
             this.Padding = new System.Windows.Forms.Padding(12);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Padoru Entry Editor";
             this.Load += new System.EventHandler(this.OnLoad);
             groupImage.ResumeLayout(false);
