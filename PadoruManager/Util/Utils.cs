@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace PadoruManager.Util
 {
@@ -30,6 +32,57 @@ namespace PadoruManager.Util
                 if (matchFunc(item)) return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Resize a image to a new size
+        /// </summary>
+        /// <param name="srcImg">the source image to scale</param>
+        /// <param name="newSize">the new size the image should be scaled to</param>
+        /// <returns>the scaled image</returns>
+        public static Image Resize(this Image srcImg, Size newSize)
+        {
+            //adjust new size to match aspect ratio
+            newSize = ResizeKeepAspect(srcImg.Size.Width, srcImg.Size.Height, newSize.Width, newSize.Height);
+
+            //create target (new) image in given size
+            Bitmap destImg = new Bitmap(newSize.Width, newSize.Height);
+
+            //copy source image onto target image, scaling it accordingly
+            using (Graphics g = Graphics.FromImage(destImg))
+            {
+                //use high quality scaling
+                g.CompositingMode = CompositingMode.SourceCopy;
+                g.CompositingQuality = CompositingQuality.HighQuality;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.SmoothingMode = SmoothingMode.HighQuality;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                //draw the source image onto the target
+                g.DrawImage(srcImg, new Rectangle(new Point(0, 0), newSize));
+            }
+
+            //return the scaled image
+            return destImg;
+        }
+
+        /// <summary>
+        /// Resize a Size to be within the given maximum width/height while retaining the aspect ratio
+        /// Taken from https://stackoverflow.com/questions/1940581/c-sharp-image-resizing-to-different-size-while-preserving-aspect-ratio (by fubo)
+        /// </summary>
+        /// <param name="srcWidth">the original width</param>
+        /// <param name="srcHeight">the original height</param>
+        /// <param name="maxWidth">the maximum width</param>
+        /// <param name="maxHeight">the maximum height</param>
+        /// <param name="enlarge">if true, part of the image may be cut off to retain aspect ratio</param>
+        /// <returns>the new size</returns>
+        public static Size ResizeKeepAspect(int srcWidth, int srcHeight, int maxWidth, int maxHeight, bool enlarge = false)
+        {
+            maxWidth = enlarge ? maxWidth : Math.Min(maxWidth, srcWidth);
+            maxHeight = enlarge ? maxHeight : Math.Min(maxHeight, srcHeight);
+
+            double scaleFactor = Math.Min(maxWidth / (double)srcWidth, maxHeight / (double)srcHeight);
+            return new Size((int)Math.Round(srcWidth * scaleFactor), (int)Math.Round(srcHeight * scaleFactor));
         }
     }
 }

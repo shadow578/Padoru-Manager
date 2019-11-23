@@ -137,10 +137,17 @@ namespace PadoruManager.UI
                     //get result from load task
                     Image entryImg = t.Result;
 
-                    //set image if loaded correctly
-                    if (entryImg != null)
+                    //abort if no image loaded or there is no preview to set the image of
+                    if (entryImg == null || preview == null) return;
+
+                    //scale down loaded image to required resolution
+                    using (entryImg)
                     {
-                        preview.PreviewImage = entryImg;
+                        //scale down image
+                        Image entryImgScaled = entryImg.Resize(preview.PreviewImageBoxSize);
+
+                        //set image if loaded correctly
+                        preview.PreviewImage = entryImgScaled;
                     }
                 }));
             }

@@ -27,6 +27,17 @@ namespace PadoruManager.UI
         }
 
         /// <summary>
+        /// The size of the image box that shows the preview image
+        /// </summary>
+        public Size PreviewImageBoxSize
+        {
+            get
+            {
+                return imgPadoru.Size;
+            }
+        }
+
+        /// <summary>
         /// The Name that is displayed below the image view
         /// </summary>
         public string DisplayName
