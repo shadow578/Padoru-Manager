@@ -140,11 +140,14 @@ namespace PadoruManager.UI
                 entry.MALId = malId;
             }
 
-            //set image path
-            entry.SetImagePath(txtImagePath.Text);
+            //set image path and parent collection
+            if (EditingParentCollection != null)
+            {
+                entry.ParentCollection = EditingParentCollection;
+                entry.SetImagePath(txtImagePath.Text);
+            }
 
             if (editingId.Equals(Guid.Empty)) entry.UID = editingId;
-            if (EditingParentCollection != null) entry.ParentCollection = EditingParentCollection;
             return entry;
         }
 

@@ -102,6 +102,8 @@ namespace PadoruManager.UI
         /// <param name="entries">the entrys to populate the panel with</param>
         async Task PopulateSelectionPanel(List<PadoruEntry> entries)
         {
+            SuspendLayout();
+
             //clear old panel
             entrySelectionPanel.Controls.Clear();
 
@@ -151,6 +153,7 @@ namespace PadoruManager.UI
                     }
                 }));
             }
+            ResumeLayout();
 
             //wait for all images to finish loading
             await Task.WhenAll(imgLoadTasks);
@@ -220,6 +223,7 @@ namespace PadoruManager.UI
         /// <param name="entries">the entrys to show on the panel</param>
         void ShowOnSelectionPanel(List<PadoruEntry> entries)
         {
+            SuspendLayout();
             foreach (Control c in entrySelectionPanel.Controls)
             {
                 //skip all non previews
@@ -241,6 +245,7 @@ namespace PadoruManager.UI
                 //set visibility
                 preview.Visible = show;
             }
+            ResumeLayout();
         }
 
         /// <summary>
@@ -265,6 +270,7 @@ namespace PadoruManager.UI
         /// </summary>
         void UpdateSelection()
         {
+            SuspendLayout();
             foreach (Control ctrl in entrySelectionPanel.Controls)
             {
                 //skip all that are not previews
@@ -279,6 +285,7 @@ namespace PadoruManager.UI
 
                 preview.ThickBorders = preview.EntryGuid.Equals(currentlySelectedEntryId);
             }
+            ResumeLayout();
         }
 
         /// <summary>
