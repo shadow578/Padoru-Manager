@@ -361,8 +361,15 @@ echo Collection dir: %1");
                 return;
             }
 
-            //save collection
+            //save collection formatted
             currentCollection.ToFile();
+
+            //save collection minified
+            string miniName = Path.GetFileNameWithoutExtension(currentCollection.LoadedFrom) + "-mini" + Path.GetExtension(currentCollection.LoadedFrom);
+            string miniPath = Path.Combine(Path.GetDirectoryName(currentCollection.LoadedFrom), miniName);
+            currentCollection.ToFile(miniPath, true);
+
+            //run the save script 
             RunSaveScript();
 
             //show confirmation if not autosaving
