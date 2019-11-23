@@ -18,6 +18,11 @@ namespace PadoruManager.UI
         const string LAST_COLLECTION_PATH_FILE = "./lastcollection.path";
 
         /// <summary>
+        /// The file that is used to track the last size of the manager ui
+        /// </summary>
+        const string LAST_UI_SIZE_FILE = "./lastui.size";
+
+        /// <summary>
         /// the name of the save script (inside the collection path)
         /// </summary>
         const string SAVE_SCRIPT_NAME = "onsave.bat";
@@ -67,6 +72,31 @@ namespace PadoruManager.UI
 
             //write path to file
             File.WriteAllText(LAST_COLLECTION_PATH_FILE, path);
+        }
+
+        /// <summary>
+        /// Restore the size the ui had the last time it was opened
+        /// </summary>
+        void RestoreLastUISize()
+        {
+            //check file exists
+            if (!File.Exists(LAST_UI_SIZE_FILE)) return;
+
+            //get size as string from file
+            string sizeStr = File.ReadAllText(LAST_UI_SIZE_FILE);
+
+            //check size string is ok
+            if (string.IsNullOrWhiteSpace(sizeStr)) return;
+
+            //parse size
+            Size size = Utils.StringToSize(sizeStr);
+
+            //check size is ok to use
+            if (size.IsEmpty || size.Width < MinimumSize.Width || size.Height < MinimumSize.Height) return;
+
+            //set size
+            Size = size;
+
         }
 
         /// <summary>
@@ -409,6 +439,9 @@ echo Collection dir: %1");
 
         async void OnLoad(object sender, EventArgs e)
         {
+            //show loading cursor while loading
+            UseWaitCursor = true;
+
             //Try to open the last collection
             string lastCollection = LoadLastCollectionFilePath();
             if (!string.IsNullOrWhiteSpace(lastCollection))
@@ -420,8 +453,21 @@ echo Collection dir: %1");
             //initial populate selection panel
             await PopulateSelectionPanel(currentCollection.Entries);
 
+            //try to restore last window size
+            try
+            {
+                RestoreLastUISize();
+            }
+            catch (Exception)
+            {
+                //is ok if fails
+            }
+
             //update ui
             Refresh();
+
+            //disable load cursor after loading
+            UseWaitCursor = false;
         }
 
         void OnOpenCollectionClick(object sender, EventArgs e)
@@ -559,6 +605,18 @@ echo Collection dir: %1");
             //update ui
             currentlySelectedEntryId = Guid.Empty;
             Refresh();
+        }
+
+        void CollectionManager_ResizeEnd(object sender, EventArgs e)
+        {
+            try
+            {
+                File.WriteAllText(LAST_UI_SIZE_FILE, Size.SizeToString());
+            }
+            catch (Exception)
+            {
+                //optional function, ignore errors
+            }
         }
 
         void OnClosing(object sender, FormClosingEventArgs e)

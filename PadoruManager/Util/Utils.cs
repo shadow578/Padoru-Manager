@@ -84,5 +84,35 @@ namespace PadoruManager.Util
             double scaleFactor = Math.Min(maxWidth / (double)srcWidth, maxHeight / (double)srcHeight);
             return new Size((int)Math.Round(srcWidth * scaleFactor), (int)Math.Round(srcHeight * scaleFactor));
         }
+
+        /// <summary>
+        /// convert the size into a string in format wxh
+        /// </summary>
+        /// <param name="size">the size to convert</param>
+        /// <returns>the size string</returns>
+        public static string SizeToString(this Size size)
+        {
+            return $"{size.Width}x{size.Height}";
+        }
+
+        /// <summary>
+        /// parse a size from a string  in format wxh(that was created using SizeToString function)
+        /// </summary>
+        /// <param name="str">the string to parse</param>
+        /// <returns>the parsed size, or Size.Empty if parse failed</returns>
+        public static Size StringToSize(string str)
+        {
+            try
+            {
+                var a = str.Split(new char[] { 'x' });
+                return new Size()
+                {
+                    Width = int.Parse(a[0]),
+                    Height = int.Parse(a[1])
+                };
+            }
+            catch (Exception) { }
+            return Size.Empty;
+        }
     }
 }
