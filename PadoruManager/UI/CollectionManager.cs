@@ -17,7 +17,7 @@ namespace PadoruManager.UI
         /// <summary>
         /// The path to the repo file
         /// </summary>
-        const string REPO_URL_FILE_PATH = "./repobase.url";
+        const string TOC_REPO_URL_FILE_PATH = "./toc-repobase.url";
 
         /// <summary>
         /// The file that is used to track the last opened collection file path
@@ -430,13 +430,13 @@ echo Collection dir: %1");
         /// Get the root url of the github repo the images are hosted in (raw / direct link)
         /// </summary>
         /// <returns>the root url, that, appended with the relative image path, forms the image url</returns>
-        string GetRepoRootPath()
+        string GetTocRepoRootPath()
         {
             //check file exists
-            if (!File.Exists(REPO_URL_FILE_PATH)) return string.Empty;
+            if (!File.Exists(TOC_REPO_URL_FILE_PATH)) return string.Empty;
 
             //read first line
-            return File.ReadAllLines(REPO_URL_FILE_PATH).FirstOrDefault();
+            return File.ReadAllLines(TOC_REPO_URL_FILE_PATH).FirstOrDefault();
         }
 
         #region UI Events
@@ -447,6 +447,9 @@ echo Collection dir: %1");
             txtCollectionSearch.Enabled = hasCollection;
             btnAddNew.Enabled = hasCollection;
             btnSaveCollection.Enabled = hasCollection;
+            btnCreateToc.Enabled = hasCollection;
+            chkAutoSave.Enabled = hasCollection;
+            chkEnableSaveScript.Enabled = hasCollection;
 
             bool hasSelection = !currentlySelectedEntryId.Equals(Guid.Empty);
             btnEditCurrent.Enabled = hasSelection;
@@ -641,7 +644,7 @@ echo Collection dir: %1");
             if (currentCollection == null || !currentCollection.LoadedLocal) return;
 
             //get repo root url
-            string repoRoot = GetRepoRootPath().TrimEnd('/') + "/" + TOC_ROOT_RELATIVE_PATH;
+            string repoRoot = GetTocRepoRootPath().TrimEnd('/') + "/" + TOC_ROOT_RELATIVE_PATH;
 
             //get local toc root path
             string tocRoot = Path.Combine(Path.GetDirectoryName(currentCollection.LoadedFrom), TOC_ROOT_RELATIVE_PATH);
@@ -653,7 +656,7 @@ echo Collection dir: %1");
             if (MessageBox.Show(this, $"This action will recreate the Table of Contents and delete any files in the directory {tocRoot}. Continue?", "Continue create ToC?", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
 
             //delete toc directory if currently exists
-            Directory.Delete(repoRoot);
+            if (Directory.Exists(tocRoot)) Directory.Delete(tocRoot, true);
 
             //create instance of toc creator
             TableOfContentCreator tocCreator = new TableOfContentCreator()

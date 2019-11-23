@@ -34,12 +34,12 @@
             System.Windows.Forms.Panel pTopControls;
             System.Windows.Forms.Panel pBottomControls;
             System.Windows.Forms.Panel pCenterControls;
-            System.Windows.Forms.Button btnCreateToc;
             this.entrySelectionPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.txtCollectionSearch = new System.Windows.Forms.TextBox();
             this.btnAddNew = new System.Windows.Forms.Button();
             this.btnEditCurrent = new System.Windows.Forms.Button();
             this.btnRemoveCurrent = new System.Windows.Forms.Button();
+            this.btnCreateToc = new System.Windows.Forms.Button();
             this.lbEntrysCount = new System.Windows.Forms.Label();
             this.btnSaveCollection = new System.Windows.Forms.Button();
             this.chkEnableSaveScript = new System.Windows.Forms.CheckBox();
@@ -52,7 +52,6 @@
             pTopControls = new System.Windows.Forms.Panel();
             pBottomControls = new System.Windows.Forms.Panel();
             pCenterControls = new System.Windows.Forms.Panel();
-            btnCreateToc = new System.Windows.Forms.Button();
             groupSelectionResults.SuspendLayout();
             pTopControls.SuspendLayout();
             pBottomControls.SuspendLayout();
@@ -150,7 +149,7 @@
             // 
             pBottomControls.AutoSize = true;
             pBottomControls.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            pBottomControls.Controls.Add(btnCreateToc);
+            pBottomControls.Controls.Add(this.btnCreateToc);
             pBottomControls.Controls.Add(this.lbEntrysCount);
             pBottomControls.Controls.Add(this.btnSaveCollection);
             pBottomControls.Controls.Add(btnOpenCollection);
@@ -161,6 +160,17 @@
             pBottomControls.Name = "pBottomControls";
             pBottomControls.Size = new System.Drawing.Size(780, 35);
             pBottomControls.TabIndex = 1072;
+            // 
+            // btnCreateToc
+            // 
+            this.btnCreateToc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCreateToc.Location = new System.Drawing.Point(390, 7);
+            this.btnCreateToc.Name = "btnCreateToc";
+            this.btnCreateToc.Size = new System.Drawing.Size(125, 23);
+            this.btnCreateToc.TabIndex = 1071;
+            this.btnCreateToc.Text = "Create ToC";
+            this.btnCreateToc.UseVisualStyleBackColor = true;
+            this.btnCreateToc.Click += new System.EventHandler(this.OnCreateTocClick);
             // 
             // lbEntrysCount
             // 
@@ -239,17 +249,6 @@
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.OnRemoveCurrentClick);
             // 
-            // btnCreateToc
-            // 
-            btnCreateToc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            btnCreateToc.Location = new System.Drawing.Point(390, 7);
-            btnCreateToc.Name = "btnCreateToc";
-            btnCreateToc.Size = new System.Drawing.Size(125, 23);
-            btnCreateToc.TabIndex = 1071;
-            btnCreateToc.Text = "Create ToC";
-            btnCreateToc.UseVisualStyleBackColor = true;
-            btnCreateToc.Click += new System.EventHandler(this.OnCreateTocClick);
-            // 
             // CollectionManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -292,5 +291,6 @@
         private System.Windows.Forms.ContextMenuStrip padoruPreviewContextMenu;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
+        private System.Windows.Forms.Button btnCreateToc;
     }
 }

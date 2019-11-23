@@ -170,7 +170,7 @@ namespace PadoruManager.GitToC
                     }
                     else
                     {
-                        page.WriteLine($"* ({toc.CharacterName})[{toc.CharacterPageUrl}]");
+                        page.WriteLine($"* [{toc.CharacterName}]({toc.CharacterPageUrl})");
                     }
                 }
             }
@@ -202,7 +202,7 @@ namespace PadoruManager.GitToC
                 }
                 else
                 {
-                    page.WriteLine($"* **Created by:**    ({toc.CreatorName})[{toc.CreatorUrl}]");
+                    page.WriteLine($"* **Created by:**    [{toc.CreatorName}]({toc.CreatorUrl})");
                 }
                 page.WriteLine($"* **Contributor:**   {toc.ContributorName}");
 
@@ -215,7 +215,7 @@ namespace PadoruManager.GitToC
                 }
                 else
                 {
-                    page.WriteLine($"* **Name:**   ({toc.CharacterName})[{toc.MalUrl}]");
+                    page.WriteLine($"* **Name:**   [{toc.CharacterName}]({toc.MalUrl})");
                 }
 
                 //character nicknames
@@ -240,7 +240,7 @@ namespace PadoruManager.GitToC
                         }
                         else
                         {
-                            page.WriteLine($"  * ({show.ShowName})[{show.ShowMalUrl}]");
+                            page.WriteLine($"  * [{show.ShowName}]({show.ShowMalUrl})");
                         }
                     }
                 }
