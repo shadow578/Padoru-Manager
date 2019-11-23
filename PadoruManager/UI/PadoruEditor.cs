@@ -74,15 +74,6 @@ namespace PadoruManager.UI
 
             //create jikan instance
             jikan = new Jikan(true);
-
-            //test auto complete
-            txtCharacterName.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-            txtCharacterName.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            AutoCompleteStringCollection c = new AutoCompleteStringCollection();
-            c.Add("Dieter");
-            c.Add("Peter");
-
-            txtCharacterName.AutoCompleteCustomSource = c;
         }
 
         /// <summary>
@@ -122,9 +113,6 @@ namespace PadoruManager.UI
 
             //save parent collection
             EditingParentCollection = entry.ParentCollection;
-
-            //build auto complete lists
-            if (entry.ParentCollection != null) PopulateAutoComplete(entry.ParentCollection);
         }
 
         /// <summary>
@@ -569,6 +557,9 @@ namespace PadoruManager.UI
         {
             //enable "loading" cursor for form
             UseWaitCursor = true;
+
+            //build auto complete lists
+            if (EditingParentCollection != null) PopulateAutoComplete(EditingParentCollection);
 
             //force check required fields
             CheckRequiredFields();
