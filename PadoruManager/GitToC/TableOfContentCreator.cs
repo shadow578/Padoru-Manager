@@ -184,7 +184,7 @@ namespace PadoruManager.GitToC
         {
             //create file
             CreateFileDir(savePath);
-            using (TextWriter page = File.CreateText(savePath))
+            using (TextWriter page = File.AppendText(savePath))
             {
                 //add page header
                 page.WriteLine($"# {toc.CharacterName}");
@@ -244,6 +244,10 @@ namespace PadoruManager.GitToC
                         }
                     }
                 }
+
+                //empty lines to pad eventual additional entries
+                page.WriteLine();
+                page.WriteLine();
             }
         }
 
