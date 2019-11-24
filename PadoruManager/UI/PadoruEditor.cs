@@ -135,7 +135,7 @@ namespace PadoruManager.UI
             };
 
             //parse and set mal id
-            if (!long.TryParse(txtSelectedMalId.Text, out long malId))
+            if (long.TryParse(txtSelectedMalId.Text, out long malId))
             {
                 entry.MALId = malId;
             }
