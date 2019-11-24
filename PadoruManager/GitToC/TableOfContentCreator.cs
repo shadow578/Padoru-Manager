@@ -148,6 +148,7 @@ namespace PadoruManager.GitToC
 
             //create file
             CreateFileDir(savePath);
+            List<string> linkedCharacterPages = new List<string>();
             using (TextWriter page = File.CreateText(savePath))
             {
                 //list characters alphabetically
@@ -170,7 +171,13 @@ namespace PadoruManager.GitToC
                     }
                     else
                     {
-                        page.WriteLine($"* [{toc.CharacterName}]({toc.CharacterPageUrl})");
+                        //check that this page was not yet linked to
+                        if (!linkedCharacterPages.Contains(toc.CharacterPageUrl))
+                        {
+                            //page not yet linked, add to index
+                            page.WriteLine($"* [{toc.CharacterName}]({toc.CharacterPageUrl})");
+                            linkedCharacterPages.Add(toc.CharacterPageUrl);
+                        }
                     }
                 }
             }
