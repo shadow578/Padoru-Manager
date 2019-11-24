@@ -14,6 +14,7 @@ namespace PadoruManager.UI
 {
     public partial class CollectionManager : Form
     {
+        #region Constants
         /// <summary>
         /// The file that is used to track the last opened collection file path
         /// </summary>
@@ -28,7 +29,9 @@ namespace PadoruManager.UI
         /// The name of the collection manager config file (inside the collection root path)
         /// </summary>
         const string COLLECTION_MANAGER_CONFIG_NAME = "manager.config";
+        #endregion
 
+        #region Working Variables
         /// <summary>
         /// The currently loaded collection
         /// </summary>
@@ -48,6 +51,7 @@ namespace PadoruManager.UI
         /// Were any changes made in the current collection that were not yet saved?
         /// </summary>
         bool hasUnsavedChanges = false;
+        #endregion
 
         /// <summary>
         /// initialize the ui
@@ -57,55 +61,7 @@ namespace PadoruManager.UI
             InitializeComponent();
         }
 
-        /// <summary>
-        /// load the collection file path that was opened the last time
-        /// </summary>
-        /// <returns>the path to the last opened collection file, or string.empty</returns>
-        string LoadLastCollectionFilePath()
-        {
-            //check that path save file exists
-            if (!File.Exists(LAST_COLLECTION_PATH_FILE)) return string.Empty;
-
-            //load path from path save file
-            using (StreamReader reader = File.OpenText(LAST_COLLECTION_PATH_FILE))
-            {
-                return reader.ReadLine();
-            }
-        }
-
-        /// <summary>
-        /// Save the path as the last path that was opened
-        /// </summary>
-        /// <param name="path">the path to save</param>
-        void SaveLastCollectionFilePath(string path)
-        {
-            //file has to exist
-            if (!File.Exists(path)) return;
-
-            //write path to file
-            File.WriteAllText(LAST_COLLECTION_PATH_FILE, path);
-        }
-
-        /// <summary>
-        /// Restore the size the ui had the last time it was opened
-        /// </summary>
-        void RestoreLastUISize()
-        {
-            //get size from config
-            Size size = Size.Empty;
-            if (currentManagerConfig != null)
-            {
-                size = currentManagerConfig.LastUiSize;
-            }
-
-            //check size is ok to use
-            if (size.IsEmpty || size.Width < MinimumSize.Width || size.Height < MinimumSize.Height) return;
-
-            //set size
-            Size = size;
-
-        }
-
+        #region Collection Load & Save
         /// <summary>
         /// Load the collection represented by the given file
         /// also sets collection variable.
@@ -155,6 +111,41 @@ namespace PadoruManager.UI
             }
         }
 
+        /// <summary>
+        /// automatically save the collection
+        /// </summary>
+        /// <param name="autoSave">is this a call from a autosave routine?</param>
+        void SaveCollection(bool autoSave = false)
+        {
+            //set unsaved changes flag
+            hasUnsavedChanges = true;
+
+            //check if autosave is active
+            if (autoSave && !chkAutoSave.Checked) return;
+
+            //check collection exists
+            if (currentCollection == null)
+            {
+                MessageBox.Show(this, "No Collection is currently active! Please Create a new one before saving.", "No Collection", MessageBoxButtons.OK);
+                return;
+            }
+
+            //save collection formatted
+            currentCollection.ToFile();
+
+            //save collection minified
+            string miniName = Path.GetFileNameWithoutExtension(currentCollection.LoadedFrom) + "-mini" + Path.GetExtension(currentCollection.LoadedFrom);
+            string miniPath = Path.Combine(Path.GetDirectoryName(currentCollection.LoadedFrom), miniName);
+            currentCollection.ToFile(miniPath, true);
+            hasUnsavedChanges = false;
+
+            //show confirmation if not autosaving
+            if (!autoSave)
+                MessageBox.Show(this, "Saved Changes!", "Saved Changes", MessageBoxButtons.OK);
+        }
+        #endregion
+
+        #region Selection Panel & Search
         /// <summary>
         /// Create new padoru previews for each entry and add them to the Selection Panel
         /// also register click events
@@ -370,6 +361,57 @@ namespace PadoruManager.UI
 
             return selectedEntry;
         }
+        #endregion
+
+        #region Utility
+        /// <summary>
+        /// load the collection file path that was opened the last time
+        /// </summary>
+        /// <returns>the path to the last opened collection file, or string.empty</returns>
+        string LoadLastCollectionFilePath()
+        {
+            //check that path save file exists
+            if (!File.Exists(LAST_COLLECTION_PATH_FILE)) return string.Empty;
+
+            //load path from path save file
+            using (StreamReader reader = File.OpenText(LAST_COLLECTION_PATH_FILE))
+            {
+                return reader.ReadLine();
+            }
+        }
+
+        /// <summary>
+        /// Save the path as the last path that was opened
+        /// </summary>
+        /// <param name="path">the path to save</param>
+        void SaveLastCollectionFilePath(string path)
+        {
+            //file has to exist
+            if (!File.Exists(path)) return;
+
+            //write path to file
+            File.WriteAllText(LAST_COLLECTION_PATH_FILE, path);
+        }
+
+        /// <summary>
+        /// Restore the size the ui had the last time it was opened
+        /// </summary>
+        void RestoreLastUISize()
+        {
+            //get size from config
+            Size size = Size.Empty;
+            if (currentManagerConfig != null)
+            {
+                size = currentManagerConfig.LastUiSize;
+            }
+
+            //check size is ok to use
+            if (size.IsEmpty || size.Width < MinimumSize.Width || size.Height < MinimumSize.Height) return;
+
+            //set size
+            Size = size;
+
+        }
 
         /// <summary>
         /// Run a script that pushes the current collection state to a server
@@ -408,39 +450,7 @@ echo Collection dir: %1");
                 MessageBox.Show(this, "Error running Push Script!", "Push Script Error", MessageBoxButtons.OK);
             }
         }
-
-        /// <summary>
-        /// automatically save the collection
-        /// </summary>
-        /// <param name="autoSave">is this a call from a autosave routine?</param>
-        void SaveCollection(bool autoSave = false)
-        {
-            //set unsaved changes flag
-            hasUnsavedChanges = true;
-
-            //check if autosave is active
-            if (autoSave && !chkAutoSave.Checked) return;
-
-            //check collection exists
-            if (currentCollection == null)
-            {
-                MessageBox.Show(this, "No Collection is currently active! Please Create a new one before saving.", "No Collection", MessageBoxButtons.OK);
-                return;
-            }
-
-            //save collection formatted
-            currentCollection.ToFile();
-
-            //save collection minified
-            string miniName = Path.GetFileNameWithoutExtension(currentCollection.LoadedFrom) + "-mini" + Path.GetExtension(currentCollection.LoadedFrom);
-            string miniPath = Path.Combine(Path.GetDirectoryName(currentCollection.LoadedFrom), miniName);
-            currentCollection.ToFile(miniPath, true);
-            hasUnsavedChanges = false;
-
-            //show confirmation if not autosaving
-            if (!autoSave)
-                MessageBox.Show(this, "Saved Changes!", "Saved Changes", MessageBoxButtons.OK);
-        }
+        #endregion
 
         #region UI Events
         public override void Refresh()
