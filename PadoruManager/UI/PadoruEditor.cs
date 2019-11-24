@@ -147,7 +147,7 @@ namespace PadoruManager.UI
                 entry.SetImagePath(txtImagePath.Text);
             }
 
-            if (editingId.Equals(Guid.Empty)) entry.UID = editingId;
+            if (!editingId.Equals(Guid.Empty)) entry.UID = editingId;
             return entry;
         }
 
