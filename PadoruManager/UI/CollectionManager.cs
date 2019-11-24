@@ -1,12 +1,12 @@
 ﻿using PadoruLib.Padoru.Model;
 using PadoruManager.GitToC;
+using PadoruManager.Model;
 using PadoruManager.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -15,19 +15,9 @@ namespace PadoruManager.UI
     public partial class CollectionManager : Form
     {
         /// <summary>
-        /// The path to the repo file
-        /// </summary>
-        const string TOC_REPO_URL_FILE_PATH = "./toc-repobase.url";
-
-        /// <summary>
         /// The file that is used to track the last opened collection file path
         /// </summary>
         const string LAST_COLLECTION_PATH_FILE = "./lastcollection.path";
-
-        /// <summary>
-        /// The file that is used to track the last size of the manager ui
-        /// </summary>
-        const string LAST_UI_SIZE_FILE = "./lastui.size";
 
         /// <summary>
         /// the name of the save script (inside the collection path)
@@ -35,14 +25,19 @@ namespace PadoruManager.UI
         const string SAVE_SCRIPT_NAME = "onsave.bat";
 
         /// <summary>
-        /// The directory name of the toc directory, inside the collection root path
+        /// The name of the collection manager config file (inside the collection root path)
         /// </summary>
-        const string TOC_ROOT_RELATIVE_PATH = "table-of-contents";
+        const string COLLECTION_MANAGER_CONFIG_NAME = "manager.config";
 
         /// <summary>
         /// The currently loaded collection
         /// </summary>
         PadoruCollection currentCollection;
+
+        /// <summary>
+        /// The manager configuration of the currently loaded collection
+        /// </summary>
+        CollectionManagerConfig currentManagerConfig;
 
         /// <summary>
         /// The currently selected entry
@@ -91,17 +86,12 @@ namespace PadoruManager.UI
         /// </summary>
         void RestoreLastUISize()
         {
-            //check file exists
-            if (!File.Exists(LAST_UI_SIZE_FILE)) return;
-
-            //get size as string from file
-            string sizeStr = File.ReadAllText(LAST_UI_SIZE_FILE);
-
-            //check size string is ok
-            if (string.IsNullOrWhiteSpace(sizeStr)) return;
-
-            //parse size
-            Size size = Utils.StringToSize(sizeStr);
+            //get size from config
+            Size size = Size.Empty;
+            if (currentManagerConfig != null)
+            {
+                size = currentManagerConfig.LastUiSize;
+            }
 
             //check size is ok to use
             if (size.IsEmpty || size.Width < MinimumSize.Width || size.Height < MinimumSize.Height) return;
@@ -134,6 +124,29 @@ namespace PadoruManager.UI
                 //create empty collection
                 currentCollection = PadoruCollection.CreateEmpty();
                 currentCollection.LoadedFrom = path;
+            }
+
+            //check if collection config file already exists
+            string collectionConfig = Path.Combine(Path.GetDirectoryName(path), COLLECTION_MANAGER_CONFIG_NAME);
+            if (File.Exists(collectionConfig))
+            {
+                //exists, load it
+                currentManagerConfig = CollectionManagerConfig.LoadFrom(collectionConfig);
+            }
+            else
+            {
+                //does not exists, open setup wizard
+                ManagerConfigSetupWizard wizard = new ManagerConfigSetupWizard();
+
+                //have to enter a config to continue
+                while (wizard.ShowDialog() != DialogResult.OK) ;
+
+                //get configuration from wizard
+                currentManagerConfig = wizard.ResultingConfig;
+                
+                //save config
+                currentManagerConfig.LoadedFrom = collectionConfig;
+                currentManagerConfig.SaveTo();
             }
         }
 
@@ -426,19 +439,6 @@ echo Collection dir: %1");
                 MessageBox.Show(this, "Saved Changes!", "Saved Changes", MessageBoxButtons.OK);
         }
 
-        /// <summary>
-        /// Get the root url of the github repo the images are hosted in (raw / direct link)
-        /// </summary>
-        /// <returns>the root url, that, appended with the relative image path, forms the image url</returns>
-        string GetTocRepoRootPath()
-        {
-            //check file exists
-            if (!File.Exists(TOC_REPO_URL_FILE_PATH)) return string.Empty;
-
-            //read first line
-            return File.ReadAllLines(TOC_REPO_URL_FILE_PATH).FirstOrDefault();
-        }
-
         #region UI Events
         public override void Refresh()
         {
@@ -565,7 +565,8 @@ echo Collection dir: %1");
             //create Padoru Editor and let user create new entry
             PadoruEditor editor = new PadoruEditor
             {
-                EditingParentCollection = currentCollection
+                EditingParentCollection = currentCollection,
+                CurrentManagerConfig = currentManagerConfig
             };
             if (editor.ShowDialog() != DialogResult.OK) return;
 
@@ -596,7 +597,8 @@ echo Collection dir: %1");
             //show padoru editor
             PadoruEditor editor = new PadoruEditor
             {
-                CurrentStateEntry = toEdit
+                CurrentStateEntry = toEdit,
+                CurrentManagerConfig = currentManagerConfig
             };
             if (editor.ShowDialog() == DialogResult.Cancel) return;
 
@@ -641,13 +643,17 @@ echo Collection dir: %1");
         async void OnCreateTocClick(object sender, EventArgs e)
         {
             //abort if not having a current collection
-            if (currentCollection == null || !currentCollection.LoadedLocal) return;
+            if (currentCollection == null || !currentCollection.LoadedLocal || currentManagerConfig == null) return;
+
+            //get collection root
+            string collectionRoot = Path.GetDirectoryName(currentCollection.LoadedFrom);
+            if (string.IsNullOrWhiteSpace(collectionRoot)) return;
 
             //get repo root url
-            string repoRoot = GetTocRepoRootPath().TrimEnd('/') + "/" + TOC_ROOT_RELATIVE_PATH;
+            string repoRoot = currentManagerConfig.GetTableOfContentsRepoRoot();
 
             //get local toc root path
-            string tocRoot = Path.Combine(Path.GetDirectoryName(currentCollection.LoadedFrom), TOC_ROOT_RELATIVE_PATH);
+            string tocRoot = currentManagerConfig.GetTableOfContentsLocalRoot(collectionRoot);
 
             //check if both root paths are there
             if (string.IsNullOrWhiteSpace(repoRoot) || string.IsNullOrWhiteSpace(tocRoot)) return;
@@ -659,11 +665,7 @@ echo Collection dir: %1");
             if (Directory.Exists(tocRoot)) Directory.Delete(tocRoot, true);
 
             //create instance of toc creator
-            TableOfContentCreator tocCreator = new TableOfContentCreator()
-            {
-                TableOfContentRemoteRoot = repoRoot,
-                TableOfContentLocalRoot = tocRoot
-            };
+            TableOfContentCreator tocCreator = new TableOfContentCreator(currentManagerConfig);
 
             //create table of contents from current collection
             await tocCreator.CreateTableOfContents(currentCollection);
@@ -672,15 +674,12 @@ echo Collection dir: %1");
             MessageBox.Show(this, "Table of Contents was created!", "TOC created", MessageBoxButtons.OK);
         }
 
-        void CollectionManager_ResizeEnd(object sender, EventArgs e)
+        void OnUiResizeEnd(object sender, EventArgs e)
         {
-            try
+            if (currentManagerConfig != null)
             {
-                File.WriteAllText(LAST_UI_SIZE_FILE, Size.SizeToString());
-            }
-            catch (Exception)
-            {
-                //optional function, ignore errors
+                currentManagerConfig.LastUiSize = Size;
+                currentManagerConfig.SaveTo();
             }
         }
 

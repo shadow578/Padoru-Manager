@@ -1,5 +1,7 @@
 ﻿using JikanDotNet;
 using PadoruLib.Padoru.Model;
+using PadoruManager.Model;
+using PadoruManager.Util;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,16 +15,18 @@ namespace PadoruManager.GitToC
     public class TableOfContentCreator
     {
         /// <summary>
-        /// The path that is the root of the table of contents
-        /// Created files are saved here
+        /// The current collection manager configuration. If not set, image url prediction will be unavailable.
         /// </summary>
-        public string TableOfContentLocalRoot { get; set; }
+        public CollectionManagerConfig CurrentManagerConfig { get; set; }
 
         /// <summary>
-        /// The base url that the table of contents in in in the remote repo
-        /// this is used to create urls referencing other pages of the table 
+        /// initialize the toc creator
         /// </summary>
-        public string TableOfContentRemoteRoot { get; set; }
+        /// <param name="managerConfig">the colleciton manager config</param>
+        public TableOfContentCreator(CollectionManagerConfig managerConfig)
+        {
+            CurrentManagerConfig = managerConfig;
+        }
 
         /// <summary>
         /// Create a Table of Contents from the given collection
@@ -37,14 +41,14 @@ namespace PadoruManager.GitToC
             foreach (ToCEntry toc in toCEntries)
             {
                 //make character page url
-                toc.CharacterPageUrl = TableOfContentRemoteRoot + "/characters/" + SanitizeForFileName(toc.CharacterName) + ".md";
+                toc.CharacterPageUrl = $"{CurrentManagerConfig.GetTableOfContentsRepoRoot()}/characters/{SanitizeForFileName(toc.CharacterName)}.md";
 
                 //write local file
-                CreateCharacterPage(toc, Path.Combine(TableOfContentLocalRoot, "characters", SanitizeForFileName(toc.CharacterName) + ".md"));
+                CreateCharacterPage(toc, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "characters", SanitizeForFileName(toc.CharacterName) + ".md"));
             }
 
             //create character index page
-            CreateCharactersIndexPage(toCEntries, Path.Combine(TableOfContentLocalRoot, "character-index.md"));
+            CreateCharactersIndexPage(toCEntries, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "character-index.md"));
         }
 
         /// <summary>
@@ -147,7 +151,7 @@ namespace PadoruManager.GitToC
             });
 
             //create file
-            CreateFileDir(savePath);
+            Utils.CreateFileDir(savePath);
             List<string> linkedCharacterPages = new List<string>();
             using (TextWriter page = File.CreateText(savePath))
             {
@@ -190,7 +194,7 @@ namespace PadoruManager.GitToC
         void CreateCharacterPage(ToCEntry toc, string savePath)
         {
             //create file
-            CreateFileDir(savePath);
+            Utils.CreateFileDir(savePath);
             using (TextWriter page = File.AppendText(savePath))
             {
                 //add page header
@@ -275,16 +279,6 @@ namespace PadoruManager.GitToC
             }
 
             return outp;
-        }
-
-        /// <summary>
-        /// Create the directory the file path is in, if needed
-        /// </summary>
-        /// <param name="filePath">the path to create the direcotry for</param>
-        void CreateFileDir(string filePath)
-        {
-            string dirPath = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(dirPath)) Directory.CreateDirectory(dirPath);
         }
 
         /// <summary>

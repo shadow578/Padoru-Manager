@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 
 namespace PadoruManager.Util
 {
@@ -124,6 +125,16 @@ namespace PadoruManager.Util
             }
             catch (Exception) { }
             return Size.Empty;
+        }
+
+        /// <summary>
+        /// Create the directory the file path is in, if needed
+        /// </summary>
+        /// <param name="filePath">the path to create the direcotry for</param>
+        public static void CreateFileDir(string filePath)
+        {
+            string dirPath = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(dirPath)) Directory.CreateDirectory(dirPath);
         }
     }
 }

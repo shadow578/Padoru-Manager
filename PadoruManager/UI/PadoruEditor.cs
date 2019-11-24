@@ -1,5 +1,6 @@
 ﻿using JikanDotNet;
 using PadoruLib.Padoru.Model;
+using PadoruManager.Model;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,11 +15,6 @@ namespace PadoruManager.UI
 {
     public partial class PadoruEditor : Form
     {
-        /// <summary>
-        /// The path to the repo file
-        /// </summary>
-        const string REPO_URL_FILE_PATH = "./repobase.url";
-
         /// <summary>
         /// Get/set the padoru entry representing the current ui state
         /// </summary>
@@ -38,6 +34,11 @@ namespace PadoruManager.UI
         /// The parent collection the current entry is part of
         /// </summary>
         public PadoruCollection EditingParentCollection { get; set; }
+
+        /// <summary>
+        /// The current collection manager configuration. If not set, image url prediction will be unavailable.
+        /// </summary>
+        public CollectionManagerConfig CurrentManagerConfig { get; set; }
 
         /// <summary>
         /// The unique id of the entry beign edited
@@ -412,19 +413,6 @@ namespace PadoruManager.UI
             return !anyMissing;
         }
 
-        /// <summary>
-        /// Get the root url of the github repo the images are hosted in (raw / direct link)
-        /// </summary>
-        /// <returns>the root url, that, appended with the relative image path, forms the image url</returns>
-        string GetRepoRootPath()
-        {
-            //check file exists
-            if (!File.Exists(REPO_URL_FILE_PATH)) return string.Empty;
-
-            //read first line
-            return File.ReadAllLines(REPO_URL_FILE_PATH).FirstOrDefault();
-        }
-
         #region UI Events
         void OnCancelClick(object sender, EventArgs e)
         {
@@ -471,28 +459,33 @@ namespace PadoruManager.UI
             //get path
             txtImagePath.Text = ofd.FileName;
 
+            #region Image URL prediction
+            //dont try to predict if there is no manager config
+            if (CurrentManagerConfig == null) return;
+
             //exit if already have url
-            if (!string.IsNullOrWhiteSpace(txtImageUrl.Text)) return;
+            if (!string.IsNullOrWhiteSpace(txtImageUrl.Text))
+            {
+                if (MessageBox.Show(this, "The image has already a URL! Do you want to override it with a prediction based on the current file path?", "Replace Image URL?", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                {
+                    //user said no
+                    return;
+                }
+            }
 
             //make relative path
             string collectionRoot = Path.GetDirectoryName(EditingParentCollection.LoadedFrom);
             string relPath = LibUtil.MakeRelativePath(collectionRoot, ofd.FileName);
-            if (string.IsNullOrWhiteSpace(relPath)) return;
-            relPath = relPath.Replace("\\", "/");
 
-            //get repo base url
-            string repoBase = GetRepoRootPath();
-            if (string.IsNullOrWhiteSpace(repoBase)) return;
-            if (!repoBase.EndsWith("/")) repoBase += "/";
-
-            //build image url in basic scheme
-            string imgUrl = repoBase + relPath;
+            //try to predict url
+            string imgUrl = CurrentManagerConfig.PredictImageUrl(relPath);
 
             //check built url is valid
-            if (!Uri.IsWellFormedUriString(imgUrl, UriKind.Absolute)) return;
+            if (string.IsNullOrWhiteSpace(imgUrl) || !Uri.IsWellFormedUriString(imgUrl, UriKind.Absolute)) return;
 
             //set textbox
             txtImageUrl.Text = imgUrl;
+            #endregion
         }
 
         void OnCharacterNameChanged(object sender, EventArgs e)

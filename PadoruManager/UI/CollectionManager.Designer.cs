@@ -265,7 +265,7 @@
             this.Text = "Collection Manager";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClosing);
             this.Load += new System.EventHandler(this.OnLoad);
-            this.ResizeEnd += new System.EventHandler(this.CollectionManager_ResizeEnd);
+            this.ResizeEnd += new System.EventHandler(this.OnUiResizeEnd);
             groupSelectionResults.ResumeLayout(false);
             pTopControls.ResumeLayout(false);
             pTopControls.PerformLayout();
