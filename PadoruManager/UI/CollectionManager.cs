@@ -109,6 +109,9 @@ namespace PadoruManager.UI
                 currentManagerConfig.LoadedFrom = collectionConfig;
                 currentManagerConfig.SaveTo();
             }
+
+            //set window title
+            Text = $"Collection Manager - {Path.GetFileName(currentCollection.LoadedFrom)}";
         }
 
         /// <summary>
