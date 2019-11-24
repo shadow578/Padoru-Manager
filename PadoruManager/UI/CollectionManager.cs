@@ -22,7 +22,7 @@ namespace PadoruManager.UI
         /// <summary>
         /// the name of the save script (inside the collection path)
         /// </summary>
-        const string SAVE_SCRIPT_NAME = "onsave.bat";
+        const string PUSH_SCRIPT_NAME = "push-repo.bat";
 
         /// <summary>
         /// The name of the collection manager config file (inside the collection root path)
@@ -43,6 +43,11 @@ namespace PadoruManager.UI
         /// The currently selected entry
         /// </summary>
         Guid currentlySelectedEntryId = Guid.Empty;
+
+        /// <summary>
+        /// Were any changes made in the current collection that were not yet saved?
+        /// </summary>
+        bool hasUnsavedChanges = false;
 
         /// <summary>
         /// initialize the ui
@@ -143,7 +148,7 @@ namespace PadoruManager.UI
 
                 //get configuration from wizard
                 currentManagerConfig = wizard.ResultingConfig;
-                
+
                 //save config
                 currentManagerConfig.LoadedFrom = collectionConfig;
                 currentManagerConfig.SaveTo();
@@ -367,13 +372,10 @@ namespace PadoruManager.UI
         }
 
         /// <summary>
-        /// Run a script when saving (e.g. a git commit script)
+        /// Run a script that pushes the current collection state to a server
         /// </summary>
-        void RunSaveScript()
+        void RunPushScript()
         {
-            //check if script should be run
-            if (!chkEnableSaveScript.Checked) return;
-
             //Get path of collection
             string collectionDir = Path.GetDirectoryName(currentCollection.LoadedFrom);
 
@@ -381,12 +383,12 @@ namespace PadoruManager.UI
             if (!Directory.Exists(collectionDir)) Directory.CreateDirectory(collectionDir);
 
             //build script path
-            string scriptPath = Path.Combine(collectionDir, SAVE_SCRIPT_NAME);
+            string scriptPath = Path.Combine(collectionDir, PUSH_SCRIPT_NAME);
 
-            //create dummy save script if no script exists
+            //create dummy push script if no script exists
             if (!File.Exists(scriptPath))
             {
-                File.WriteAllText(scriptPath, @"REM Example PadoruManager SaveScript.
+                File.WriteAllText(scriptPath, @"REM Example PadoruManager Push Script.
 REM use %1 to get the directory the collection is in
 REM like this
 echo Collection dir: %1");
@@ -403,7 +405,7 @@ echo Collection dir: %1");
             }
             catch (Exception)
             {
-                MessageBox.Show(this, "Error running SaveScript!", "SaveScript Error", MessageBoxButtons.OK);
+                MessageBox.Show(this, "Error running Push Script!", "Push Script Error", MessageBoxButtons.OK);
             }
         }
 
@@ -413,6 +415,9 @@ echo Collection dir: %1");
         /// <param name="autoSave">is this a call from a autosave routine?</param>
         void SaveCollection(bool autoSave = false)
         {
+            //set unsaved changes flag
+            hasUnsavedChanges = true;
+
             //check if autosave is active
             if (autoSave && !chkAutoSave.Checked) return;
 
@@ -430,9 +435,7 @@ echo Collection dir: %1");
             string miniName = Path.GetFileNameWithoutExtension(currentCollection.LoadedFrom) + "-mini" + Path.GetExtension(currentCollection.LoadedFrom);
             string miniPath = Path.Combine(Path.GetDirectoryName(currentCollection.LoadedFrom), miniName);
             currentCollection.ToFile(miniPath, true);
-
-            //run the save script 
-            RunSaveScript();
+            hasUnsavedChanges = false;
 
             //show confirmation if not autosaving
             if (!autoSave)
@@ -448,8 +451,9 @@ echo Collection dir: %1");
             btnAddNew.Enabled = hasCollection;
             btnSaveCollection.Enabled = hasCollection;
             btnCreateToc.Enabled = hasCollection;
+            btnRunPushScript.Enabled = hasCollection;
+            btnReloadCollection.Enabled = hasCollection;
             chkAutoSave.Enabled = hasCollection;
-            chkEnableSaveScript.Enabled = hasCollection;
 
             bool hasSelection = !currentlySelectedEntryId.Equals(Guid.Empty);
             btnEditCurrent.Enabled = hasSelection;
@@ -514,18 +518,49 @@ echo Collection dir: %1");
             //show dialog
             if (ofd.ShowDialog() != DialogResult.OK) return;
 
-            //open collection
-            LoadCollection(ofd.FileName);
+            //save selected path as last collection path and re- run onLoad to initialize the ui
             SaveLastCollectionFilePath(ofd.FileName);
-
-            //update ui
-            currentlySelectedEntryId = Guid.Empty;
-            Refresh();
+            OnLoad(sender, e);
         }
 
         void OnSaveCollectionClick(object sender, EventArgs e)
         {
+            //show warning if nothing was changed
+            if (!hasUnsavedChanges)
+            {
+                if (MessageBox.Show(this, "There are no changes! Save anyways?", "No Changes To Save", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                {
+                    //user say no
+                    return;
+                }
+            }
+
+            //save collection
             SaveCollection(false);
+        }
+
+        void OnReloadCollectionClick(object sender, EventArgs e)
+        {
+            OnLoad(sender, e);
+        }
+
+        void OnRunPushScriptClick(object sender, EventArgs e)
+        {
+            //notify user if there are unsaved changes before pushing
+            if (hasUnsavedChanges)
+            {
+                if (MessageBox.Show(this, "There are unsaved changes! Do you want to save before pushing?", "Save Before Push", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    //user say yes, save first
+                    SaveCollection(false);
+                }
+            }
+
+            //push collection to server
+            RunPushScript();
+
+            //give user info that push ran
+            MessageBox.Show(this, "Push Script was executed!", "Push Script", MessageBoxButtons.OK);
         }
 
         void OnSearchTextChange(object sender, EventArgs e)
@@ -664,11 +699,17 @@ echo Collection dir: %1");
             //delete toc directory if currently exists
             if (Directory.Exists(tocRoot)) Directory.Delete(tocRoot, true);
 
+            //enable wait cursor
+            UseWaitCursor = true;
+
             //create instance of toc creator
             TableOfContentCreator tocCreator = new TableOfContentCreator(currentManagerConfig);
 
             //create table of contents from current collection
             await tocCreator.CreateTableOfContents(currentCollection);
+
+            //disable wait cursor
+            UseWaitCursor = false;
 
             //show message box that toc was created
             MessageBox.Show(this, "Table of Contents was created!", "TOC created", MessageBoxButtons.OK);
@@ -685,7 +726,10 @@ echo Collection dir: %1");
 
         void OnClosing(object sender, FormClosingEventArgs e)
         {
-            DialogResult res = MessageBox.Show(this, "If you close, all unchanged changes will be lost!\nDo you want to save now?", "Save now?", MessageBoxButtons.YesNoCancel);
+            //close if no changes are to save
+            if (!hasUnsavedChanges) return;
+
+            DialogResult res = MessageBox.Show(this, "If you close, all unsaved changes will be lost!\nDo you want to save now?", "Save now?", MessageBoxButtons.YesNoCancel);
             if (res == DialogResult.Yes)
             {
                 SaveCollection(false);
