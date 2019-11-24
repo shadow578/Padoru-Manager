@@ -2,6 +2,7 @@
 using PadoruLib.Padoru.Model;
 using PadoruManager.Model;
 using PadoruManager.Util;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -184,6 +185,10 @@ namespace PadoruManager.GitToC
                         }
                     }
                 }
+
+                //add page generation date
+                page.WriteLine();
+                page.WriteLine($"###### Generated on {DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss")}");
             }
         }
 
