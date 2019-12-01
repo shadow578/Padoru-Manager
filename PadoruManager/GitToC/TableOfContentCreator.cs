@@ -38,6 +38,26 @@ namespace PadoruManager.GitToC
             //create toc entries
             ToCData tocData = await CreateData(collection);
 
+            //create creator pages
+            foreach (ToCCreator tocC in tocData.Creators)
+            {
+                //make creator page url
+                tocC.PageUrl = $"{CurrentManagerConfig.GetTableOfContentsRepoRoot()}/creators/{SanitizeForFileName(tocC.Name)}.md";
+
+                //write local file
+                CreateCreatorPage(tocC, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "creators", SanitizeForFileName(tocC.Name) + ".md"));
+            }
+
+            //create show pages
+            foreach (ToCShow tocS in tocData.Shows)
+            {
+                //make creator page url
+                tocS.PageUrl = $"{CurrentManagerConfig.GetTableOfContentsRepoRoot()}/shows/{SanitizeForFileName(tocS.Name)}.md";
+
+                //write local file
+                CreateShowPage(tocS, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "shows", SanitizeForFileName(tocS.Name) + ".md"));
+            }
+
             //create character pages
             foreach (ToCEntry tocE in tocData.Characters)
             {
@@ -48,21 +68,14 @@ namespace PadoruManager.GitToC
                 CreateCharacterPage(tocE, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "characters", SanitizeForFileName(tocE.CharacterName) + ".md"));
             }
 
-            //create creator pages
-            foreach(ToCCreator tocC in tocData.Creators)
-            {
-                //make creator page url
-                tocC.PageUrl = $"{CurrentManagerConfig.GetTableOfContentsRepoRoot()}/creators/{SanitizeForFileName(tocC.Name)}.md";
-
-                //write local file
-                CreateCreatorPage(tocC, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "creators", SanitizeForFileName(tocC.Name) + ".md"));
-            }
-
             //create characters index page
             CreateCharactersIndexPage(tocData.Characters, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "character-index.md"));
 
             //create creators index page
             CreateCreatorsIndexPage(tocData.Creators, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "creators-index.md"));
+
+            //create shows index page
+            CreateShowsIndexPage(tocData.Shows, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "shows-index.md"));
         }
 
         /// <summary>
@@ -78,6 +91,7 @@ namespace PadoruManager.GitToC
             //enumerate all padorus
             List<ToCEntry> tocCharacters = new List<ToCEntry>();
             List<ToCCreator> tocCreators = new List<ToCCreator>();
+            List<ToCShow> tocShows = new List<ToCShow>();
             foreach (PadoruEntry pEntry in pCollection.Entries)
             {
                 //create entry with base values
@@ -106,11 +120,27 @@ namespace PadoruManager.GitToC
                         {
                             foreach (MALImageSubItem anime in charInfo.Animeography)
                             {
-                                cShows.Add(new ToCShow()
+                                //check if shows list already contains this anime
+                                ToCShow tocAnime = null;
+                                if (tocShows.HasAnyWhere((s) => s.MalId.Equals(anime.MalId)))
                                 {
-                                    ShowName = anime.Name,
-                                    ShowMalUrl = anime.Url
-                                });
+                                    //show already exists, try to get it
+                                    tocAnime = tocShows.Where((s) => s.MalId.Equals(anime.MalId)).FirstOrDefault();
+                                }
+
+                                //create new toc show if still null (not in list or get from list failed)
+                                if (tocAnime == null)
+                                {
+                                    tocAnime = new ToCShow()
+                                    {
+                                        Name = anime.Name,
+                                        MalUrl = anime.Url,
+                                        MalId = anime.MalId
+                                    };
+                                }
+
+                                //add current anime to list of shows
+                                cShows.Add(tocAnime);
                             }
                         }
 
@@ -119,16 +149,41 @@ namespace PadoruManager.GitToC
                         {
                             foreach (MALImageSubItem manga in charInfo.Mangaography)
                             {
-                                cShows.Add(new ToCShow()
+                                //check if shows list already contains this anime
+                                ToCShow tocManga = null;
+                                if (tocShows.HasAnyWhere((s) => s.MalId.Equals(manga.MalId)))
                                 {
-                                    ShowName = manga.Name,
-                                    ShowMalUrl = manga.Url
-                                });
+                                    //show already exists, try to get it
+                                    tocManga = tocShows.Where((s) => s.MalId.Equals(manga.MalId)).FirstOrDefault();
+                                }
+
+                                //create new toc show if still null (not in list or get from list failed)
+                                if (tocManga == null)
+                                {
+                                    tocManga = new ToCShow()
+                                    {
+                                        Name = manga.Name,
+                                        MalUrl = manga.Url,
+                                        MalId = manga.MalId
+                                    };
+                                }
+
+                                //add current anime to list of shows
+                                cShows.Add(tocManga);
                             }
                         }
 
-                        //set show entries
-                        toc.CharacterShows = cShows.ToArray();
+                        //add current character to all shows
+                        foreach (ToCShow show in cShows)
+                        {
+                            show.Characters.Add(toc);
+                        }
+
+                        //set shows of character
+                        toc.CharacterShows = cShows;
+
+                        //add all shows to global list
+                        tocShows.AddRange(cShows);
                         #endregion
 
                         //override name and set mal id
@@ -143,6 +198,7 @@ namespace PadoruManager.GitToC
                     }
                 }
 
+                #region Set Creator Info
                 //check if there is already a creator entry matching the current entrys creator name
                 ToCCreator creator = null;
                 if (tocCreators.HasAnyWhere((c) => c.Name.EqualsIgnoreCase(pEntry.ImageCreator)))
@@ -167,6 +223,7 @@ namespace PadoruManager.GitToC
                 //add this entry to the creator and this creator to the current entry
                 creator.Entries.Add(toc);
                 toc.Creator = creator;
+                #endregion
 
                 //add toc entry to list
                 tocCharacters.Add(toc);
@@ -175,11 +232,90 @@ namespace PadoruManager.GitToC
             return new ToCData()
             {
                 Characters = tocCharacters,
-                Creators = tocCreators
+                Creators = tocCreators,
+                Shows = tocShows
             };
         }
 
         #region Page Generators
+        #region Shows
+        /// <summary>
+        /// Create the shows index page for the given list of toc entries
+        /// each toc enry must have a show page url, or it will be ignored
+        /// </summary>
+        /// <param name="toCEntries">the list of toc creators</param>
+        /// <param name="savePath">where the shows index page should be saved to</param>
+        void CreateShowsIndexPage(List<ToCShow> toCEntries, string savePath)
+        {
+            //sort tocs by creator name
+            toCEntries.Sort((a, b) =>
+            {
+                //compare names
+                return a.Name.CompareTo(b.Name);
+            });
+
+            //create file
+            Utils.CreateFileDir(savePath);
+            List<string> linkedCreatorPages = new List<string>();
+            using (TextWriter page = File.CreateText(savePath))
+            {
+                //write header
+                page.WriteLine("# Creators");
+
+                //list characters alphabetically
+                char currentChar = (char)0;
+                foreach (ToCShow toc in toCEntries)
+                {
+                    //update current char, add header
+                    char tocChar = char.ToUpper(toc.Name.First());
+                    if (tocChar > currentChar)
+                    {
+                        currentChar = tocChar;
+                        page.WriteLine();
+                        page.WriteLine($"### {tocChar}");
+                    }
+
+                    //add character name and url
+                    if (string.IsNullOrWhiteSpace(toc.PageUrl))
+                    {
+                        page.WriteLine($"* {toc.Name}");
+                    }
+                    else
+                    {
+                        //check that this page was not yet linked to
+                        if (!linkedCreatorPages.Contains(toc.PageUrl))
+                        {
+                            //page not yet linked, add to index
+                            page.WriteLine($"* [{toc.Name}]({toc.PageUrl})");
+                            linkedCreatorPages.Add(toc.PageUrl);
+                        }
+                    }
+                }
+
+                //add page generation date
+                page.WriteLine();
+                page.WriteLine($"###### Generated on {DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss")}");
+            }
+        }
+
+        /// <summary>
+        /// Create a Show page for the given toc show
+        /// </summary>
+        /// <param name="toc">the toc show to create a creator page for</param>
+        void CreateShowPage(ToCShow toc, string savePath)
+        {
+            //create title, embed show mal url if possible
+            string title = $"# Padorus in {toc.Name}";
+            if (!string.IsNullOrWhiteSpace(toc.MalUrl))
+            {
+                title = $"# Padorus in [{toc.Name}]({toc.MalUrl})";
+            }
+
+            //create page
+            CreateCharactersIndexPage(toc.Characters, savePath, title);
+        }
+        #endregion
+
         #region Creators
         /// <summary>
         /// Create the creators index page for the given list of toc entries
@@ -364,18 +500,18 @@ namespace PadoruManager.GitToC
                 }
 
                 //character shows + links
-                if (toc.CharacterShows != null && toc.CharacterShows.Length > 0)
+                if (toc.CharacterShows != null && toc.CharacterShows.Count > 0)
                 {
                     page.WriteLine("* **Shows:**");
                     foreach (ToCShow show in toc.CharacterShows)
                     {
-                        if (string.IsNullOrWhiteSpace(show.ShowMalUrl))
+                        if (string.IsNullOrWhiteSpace(show.MalUrl))
                         {
-                            page.WriteLine($"  * {show.ShowName}");
+                            page.WriteLine($"  * {show.Name}");
                         }
                         else
                         {
-                            page.WriteLine($"  * [{show.ShowName}]({show.ShowMalUrl})");
+                            page.WriteLine($"  * [{show.Name}]({show.MalUrl})");
                         }
                     }
                 }
@@ -422,6 +558,18 @@ namespace PadoruManager.GitToC
             /// All creator entries in the toc
             /// </summary>
             public List<ToCCreator> Creators { get; set; }
+
+            /// <summary>
+            /// All show entries in the toc
+            /// </summary>
+            public List<ToCShow> Shows { get; set; }
+
+            public ToCData()
+            {
+                Characters = new List<ToCEntry>();
+                Creators = new List<ToCCreator>();
+                Shows = new List<ToCShow>();
+            }
         }
 
         /// <summary>
@@ -448,7 +596,7 @@ namespace PadoruManager.GitToC
             /// The show of this entry's character
             /// </summary>
             /// <remarks>taken from MAL, may be empty</remarks>
-            public ToCShow[] CharacterShows { get; set; }
+            public List<ToCShow> CharacterShows { get; set; }
 
             /// <summary>
             /// The image url of this character
@@ -490,6 +638,16 @@ namespace PadoruManager.GitToC
                     return $"https://myanimelist.net/character/{MalId}";
                 }
             }
+
+            public ToCEntry()
+            {
+                CharacterShows = new List<ToCShow>();
+            }
+
+            public override string ToString()
+            {
+                return $"ENTRY: {CharacterName}";
+            }
         }
 
         /// <summary>
@@ -498,14 +656,39 @@ namespace PadoruManager.GitToC
         class ToCShow
         {
             /// <summary>
+            /// The Url to this show's overview page
+            /// </summary>
+            public string PageUrl { get; set; }
+
+            /// <summary>
+            /// The MAL id of this show
+            /// </summary>
+            public long MalId { get; set; }
+
+            /// <summary>
             /// The name of the show
             /// </summary>
-            public string ShowName { get; set; }
+            public string Name { get; set; }
 
             /// <summary>
             /// The mal page of the show
             /// </summary>
-            public string ShowMalUrl { get; set; }
+            public string MalUrl { get; set; }
+
+            /// <summary>
+            /// The list of all characters in this show that have a entry
+            /// </summary>
+            public List<ToCEntry> Characters { get; set; }
+
+            public ToCShow()
+            {
+                Characters = new List<ToCEntry>();
+            }
+
+            public override string ToString()
+            {
+                return $"SHOW: {Name}";
+            }
         }
 
         /// <summary>
@@ -531,6 +714,11 @@ namespace PadoruManager.GitToC
             public ToCCreator()
             {
                 Entries = new List<ToCEntry>();
+            }
+
+            public override string ToString()
+            {
+                return $"CREATOR: {Name}";
             }
         }
         #endregion
