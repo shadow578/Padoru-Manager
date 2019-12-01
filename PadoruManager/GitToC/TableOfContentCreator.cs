@@ -352,8 +352,11 @@ namespace PadoruManager.GitToC
                 char currentChar = (char)0;
                 foreach (ToCCreator toc in toCEntries)
                 {
+                    //get toc name without u/
+                    string tocName = toc.Name.Replace("u/", "").Replace("U/", "");
+
                     //update current char, add header
-                    char tocChar = char.ToUpper(toc.Name.First());
+                    char tocChar = char.ToUpper(tocName.First());
                     if (tocChar > currentChar)
                     {
                         currentChar = tocChar;
@@ -364,7 +367,7 @@ namespace PadoruManager.GitToC
                     //add character name and url
                     if (string.IsNullOrWhiteSpace(toc.PageUrl))
                     {
-                        page.WriteLine($"* {toc.Name}");
+                        page.WriteLine($"* {tocName}");
                     }
                     else
                     {
@@ -372,7 +375,7 @@ namespace PadoruManager.GitToC
                         if (!linkedCreatorPages.Contains(toc.PageUrl))
                         {
                             //page not yet linked, add to index
-                            page.WriteLine($"* [{toc.Name}]({toc.PageUrl})");
+                            page.WriteLine($"* [{tocName}]({toc.PageUrl})");
                             linkedCreatorPages.Add(toc.PageUrl);
                         }
                     }
