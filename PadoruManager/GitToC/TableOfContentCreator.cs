@@ -505,13 +505,28 @@ namespace PadoruManager.GitToC
                     page.WriteLine("* **Shows:**");
                     foreach (ToCShow show in toc.CharacterShows)
                     {
-                        if (string.IsNullOrWhiteSpace(show.MalUrl))
+                        bool hasPage = !string.IsNullOrWhiteSpace(show.PageUrl);
+                        bool hasMal = !string.IsNullOrWhiteSpace(show.MalUrl);
+
+                        if (hasPage && hasMal)
                         {
-                            page.WriteLine($"  * {show.Name}");
+                            //has both show page and mal page, link to both
+                            page.WriteLine($"  * [{show.Name}]({show.PageUrl}) - [__MAL__]({show.MalUrl})");
+                        }
+                        else if (hasPage && !hasMal)
+                        {
+                            //has a show page but no mal page, link only show page
+                            page.WriteLine($"  * [{show.Name}]({show.PageUrl})");
+                        }
+                        else if (!hasPage && hasMal)
+                        {
+                            //has a mal page but no show page, link only mal page
+                            page.WriteLine($"  * [{show.Name}]({show.MalUrl})");
                         }
                         else
                         {
-                            page.WriteLine($"  * [{show.Name}]({show.MalUrl})");
+                            //has no mal or show page, link none
+                            page.WriteLine($"  * {show.Name}");
                         }
                     }
                 }
