@@ -142,9 +142,16 @@ namespace PadoruManager.UI
             currentCollection.ToFile(miniPath, true);
             hasUnsavedChanges = false;
 
-            //show confirmation if not autosaving
+            //do some more if not autosaving
             if (!autoSave)
-                MessageBox.Show(this, "Saved Changes!", "Saved Changes", MessageBoxButtons.OK);
+            {
+                //ask user if the toc should be regenerated
+                if (MessageBox.Show(this, "Collection Saved!\nDo you want to regenerate the Table of Contents to match the new data?", "Save Success", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    //create toc
+                    OnCreateTocClick(this, new EventArgs());
+                }
+            }
         }
         #endregion
 
@@ -453,6 +460,50 @@ echo Collection dir: %1");
                 MessageBox.Show(this, "Error running Push Script!", "Push Script Error", MessageBoxButtons.OK);
             }
         }
+
+        /// <summary>
+        /// Create a Table of contents for the current collection
+        /// </summary>
+        /// <returns>was a table of contents created?</returns>
+        async Task<bool> CreateToC()
+        {
+            //abort if not having a current collection
+            if (currentCollection == null || !currentCollection.LoadedLocal || currentManagerConfig == null) return false;
+
+            //get collection root
+            string collectionRoot = Path.GetDirectoryName(currentCollection.LoadedFrom);
+            if (string.IsNullOrWhiteSpace(collectionRoot)) return false;
+
+            //get repo root url
+            string repoRoot = currentManagerConfig.GetTableOfContentsRepoRoot();
+
+            //get local toc root path
+            string tocRoot = currentManagerConfig.GetTableOfContentsLocalRoot(collectionRoot);
+
+            //check if both root paths are there
+            if (string.IsNullOrWhiteSpace(repoRoot) || string.IsNullOrWhiteSpace(tocRoot)) return false;
+
+            //ask user if he wants to proceed
+            if (MessageBox.Show(this, $"This action will recreate the Table of Contents and delete any files in the directory {tocRoot}. Continue?", "Continue create ToC?", MessageBoxButtons.YesNo) != DialogResult.Yes) return false;
+
+            //delete toc directory if currently exists
+            if (Directory.Exists(tocRoot)) Directory.Delete(tocRoot, true);
+
+            //enable wait cursor
+            UseWaitCursor = true;
+
+            //create instance of toc creator
+            TableOfContentCreator tocCreator = new TableOfContentCreator(currentManagerConfig);
+
+            //create table of contents from current collection
+            await tocCreator.CreateTableOfContents(currentCollection);
+
+            //disable wait cursor
+            UseWaitCursor = false;
+
+            //all ok
+            return true;
+        }
         #endregion
 
         #region UI Events
@@ -562,6 +613,7 @@ echo Collection dir: %1");
             //notify user if there are unsaved changes before pushing
             if (hasUnsavedChanges)
             {
+                //ask user to save before pushing
                 if (MessageBox.Show(this, "There are unsaved changes! Do you want to save before pushing?", "Save Before Push", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     //user say yes, save first
@@ -690,42 +742,16 @@ echo Collection dir: %1");
 
         async void OnCreateTocClick(object sender, EventArgs e)
         {
-            //abort if not having a current collection
-            if (currentCollection == null || !currentCollection.LoadedLocal || currentManagerConfig == null) return;
-
-            //get collection root
-            string collectionRoot = Path.GetDirectoryName(currentCollection.LoadedFrom);
-            if (string.IsNullOrWhiteSpace(collectionRoot)) return;
-
-            //get repo root url
-            string repoRoot = currentManagerConfig.GetTableOfContentsRepoRoot();
-
-            //get local toc root path
-            string tocRoot = currentManagerConfig.GetTableOfContentsLocalRoot(collectionRoot);
-
-            //check if both root paths are there
-            if (string.IsNullOrWhiteSpace(repoRoot) || string.IsNullOrWhiteSpace(tocRoot)) return;
-
-            //ask user if he wants to proceed
-            if (MessageBox.Show(this, $"This action will recreate the Table of Contents and delete any files in the directory {tocRoot}. Continue?", "Continue create ToC?", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
-
-            //delete toc directory if currently exists
-            if (Directory.Exists(tocRoot)) Directory.Delete(tocRoot, true);
-
-            //enable wait cursor
-            UseWaitCursor = true;
-
-            //create instance of toc creator
-            TableOfContentCreator tocCreator = new TableOfContentCreator(currentManagerConfig);
-
-            //create table of contents from current collection
-            await tocCreator.CreateTableOfContents(currentCollection);
-
-            //disable wait cursor
-            UseWaitCursor = false;
-
-            //show message box that toc was created
-            MessageBox.Show(this, "Table of Contents was created!", "TOC created", MessageBoxButtons.OK);
+            if (await CreateToC())
+            {
+                //show message box that toc was created
+                MessageBox.Show(this, "Table of Contents was created!", "TOC created", MessageBoxButtons.OK);
+            }
+            else
+            {
+                //show message box that toc was not created
+                MessageBox.Show(this, "A Table of Contents was not created! Is a collection loaded?", "TOC not created", MessageBoxButtons.OK);
+            }
         }
 
         void OnUiResizeEnd(object sender, EventArgs e)

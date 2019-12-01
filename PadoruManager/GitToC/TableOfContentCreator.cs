@@ -36,34 +36,48 @@ namespace PadoruManager.GitToC
         public async Task CreateTableOfContents(PadoruCollection collection)
         {
             //create toc entries
-            List<ToCEntry> toCEntries = await CreateEntries(collection);
+            ToCData tocData = await CreateData(collection);
 
             //create character pages
-            foreach (ToCEntry toc in toCEntries)
+            foreach (ToCEntry tocE in tocData.Characters)
             {
                 //make character page url
-                toc.CharacterPageUrl = $"{CurrentManagerConfig.GetTableOfContentsRepoRoot()}/characters/{SanitizeForFileName(toc.CharacterName)}.md";
+                tocE.CharacterPageUrl = $"{CurrentManagerConfig.GetTableOfContentsRepoRoot()}/characters/{SanitizeForFileName(tocE.CharacterName)}.md";
 
                 //write local file
-                CreateCharacterPage(toc, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "characters", SanitizeForFileName(toc.CharacterName) + ".md"));
+                CreateCharacterPage(tocE, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "characters", SanitizeForFileName(tocE.CharacterName) + ".md"));
             }
 
-            //create character index page
-            CreateCharactersIndexPage(toCEntries, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "character-index.md"));
+            //create creator pages
+            foreach(ToCCreator tocC in tocData.Creators)
+            {
+                //make creator page url
+                tocC.PageUrl = $"{CurrentManagerConfig.GetTableOfContentsRepoRoot()}/creators/{SanitizeForFileName(tocC.Name)}.md";
+
+                //write local file
+                CreateCreatorPage(tocC, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "creators", SanitizeForFileName(tocC.Name) + ".md"));
+            }
+
+            //create characters index page
+            CreateCharactersIndexPage(tocData.Characters, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "character-index.md"));
+
+            //create creators index page
+            CreateCreatorsIndexPage(tocData.Creators, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "creators-index.md"));
         }
 
         /// <summary>
         /// Create a list of table entries from a padoru collection
         /// </summary>
         /// <param name="pCollection">the padoru collection to create the list from</param>
-        /// <returns>the list of table entries</returns>
-        async Task<List<ToCEntry>> CreateEntries(PadoruCollection pCollection)
+        /// <returns>the table of contents data</returns>
+        async Task<ToCData> CreateData(PadoruCollection pCollection)
         {
             //initialize jikan to resolve character names, shows, etc
             Jikan jikan = new Jikan();
 
             //enumerate all padorus
-            List<ToCEntry> tocEntries = new List<ToCEntry>();
+            List<ToCEntry> tocCharacters = new List<ToCEntry>();
+            List<ToCCreator> tocCreators = new List<ToCCreator>();
             foreach (PadoruEntry pEntry in pCollection.Entries)
             {
                 //create entry with base values
@@ -71,8 +85,8 @@ namespace PadoruManager.GitToC
                 {
                     CharacterName = pEntry.Name,
                     ContributorName = pEntry.ImageContributor,
-                    CreatorName = pEntry.ImageCreator,
-                    CreatorUrl = pEntry.ImageSource,
+                    //CreatorName = pEntry.ImageCreator,
+                    SourceUrl = pEntry.ImageSource,
                     ImageUrl = pEntry.ImageUrl
                 };
 
@@ -129,20 +143,122 @@ namespace PadoruManager.GitToC
                     }
                 }
 
+                //check if there is already a creator entry matching the current entrys creator name
+                ToCCreator creator = null;
+                if (tocCreators.HasAnyWhere((c) => c.Name.EqualsIgnoreCase(pEntry.ImageCreator)))
+                {
+                    //already has a entry, try use that
+                    creator = tocCreators.Where((c) => c.Name.EqualsIgnoreCase(pEntry.ImageCreator)).FirstOrDefault();
+                }
+
+                //create new creator entry if is still null (no creator found or get failed)
+                if (creator == null)
+                {
+                    //Create new creator
+                    creator = new ToCCreator()
+                    {
+                        Name = pEntry.ImageCreator
+                    };
+
+                    //add it to the list of creators
+                    tocCreators.Add(creator);
+                }
+
+                //add this entry to the creator and this creator to the current entry
+                creator.Entries.Add(toc);
+                toc.Creator = creator;
+
                 //add toc entry to list
-                tocEntries.Add(toc);
+                tocCharacters.Add(toc);
             }
 
-            return tocEntries;
+            return new ToCData()
+            {
+                Characters = tocCharacters,
+                Creators = tocCreators
+            };
         }
 
+        #region Page Generators
+        #region Creators
+        /// <summary>
+        /// Create the creators index page for the given list of toc entries
+        /// each toc enry must have a character page url, or it will be ignored
+        /// </summary>
+        /// <param name="toCEntries">the list of toc creators</param>
+        /// <param name="savePath">where the creators index page should be saved to</param>
+        void CreateCreatorsIndexPage(List<ToCCreator> toCEntries, string savePath)
+        {
+            //sort tocs by creator name
+            toCEntries.Sort((a, b) =>
+            {
+                //compare names
+                return a.Name.CompareTo(b.Name);
+            });
+
+            //create file
+            Utils.CreateFileDir(savePath);
+            List<string> linkedCreatorPages = new List<string>();
+            using (TextWriter page = File.CreateText(savePath))
+            {
+                //write header
+                page.WriteLine("# Creators");
+
+                //list characters alphabetically
+                char currentChar = (char)0;
+                foreach (ToCCreator toc in toCEntries)
+                {
+                    //update current char, add header
+                    char tocChar = char.ToUpper(toc.Name.First());
+                    if (tocChar > currentChar)
+                    {
+                        currentChar = tocChar;
+                        page.WriteLine();
+                        page.WriteLine($"### {tocChar}");
+                    }
+
+                    //add character name and url
+                    if (string.IsNullOrWhiteSpace(toc.PageUrl))
+                    {
+                        page.WriteLine($"* {toc.Name}");
+                    }
+                    else
+                    {
+                        //check that this page was not yet linked to
+                        if (!linkedCreatorPages.Contains(toc.PageUrl))
+                        {
+                            //page not yet linked, add to index
+                            page.WriteLine($"* [{toc.Name}]({toc.PageUrl})");
+                            linkedCreatorPages.Add(toc.PageUrl);
+                        }
+                    }
+                }
+
+                //add page generation date
+                page.WriteLine();
+                page.WriteLine($"###### Generated on {DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss")}");
+            }
+        }
+
+        /// <summary>
+        /// Create a Creator page for the given toc creator
+        /// </summary>
+        /// <param name="toc">the toc creator to create a creator page for</param>
+        void CreateCreatorPage(ToCCreator toc, string savePath)
+        {
+            CreateCharactersIndexPage(toc.Entries, savePath, $"# Padorus by {toc.Name}");
+        }
+        #endregion
+
+        #region Characters
         /// <summary>
         /// Create the character index page for the given list of toc entries
         /// each toc enry must have a character page url, or it will be ignroed
         /// </summary>
         /// <param name="toCEntries">the list of toc entries</param>
         /// <param name="savePath">where the characters index page should be saved to</param>
-        void CreateCharactersIndexPage(List<ToCEntry> toCEntries, string savePath)
+        /// <param name="title">the title of the page</param>
+        void CreateCharactersIndexPage(List<ToCEntry> toCEntries, string savePath, string title = "# Characters")
         {
             //sort tocs by character name
             toCEntries.Sort((a, b) =>
@@ -156,6 +272,9 @@ namespace PadoruManager.GitToC
             List<string> linkedCharacterPages = new List<string>();
             using (TextWriter page = File.CreateText(savePath))
             {
+                //write header
+                page.WriteLine(title);
+
                 //list characters alphabetically
                 char currentChar = (char)0;
                 foreach (ToCEntry toc in toCEntries)
@@ -212,13 +331,13 @@ namespace PadoruManager.GitToC
                 //add image info
                 page.WriteLine();
                 page.WriteLine("### Image Info");
-                if (string.IsNullOrWhiteSpace(toc.CreatorUrl))
+                if (string.IsNullOrWhiteSpace(toc.SourceUrl))
                 {
-                    page.WriteLine($"* **Created by:**    {toc.CreatorName}");
+                    page.WriteLine($"* **Created by:**    {toc.Creator.Name}");
                 }
                 else
                 {
-                    page.WriteLine($"* **Created by:**    [{toc.CreatorName}]({toc.CreatorUrl})");
+                    page.WriteLine($"* **Created by:**    [{toc.Creator.Name}]({toc.SourceUrl})");
                 }
                 page.WriteLine($"* **Contributor:**   {toc.ContributorName}");
 
@@ -266,7 +385,10 @@ namespace PadoruManager.GitToC
                 page.WriteLine();
             }
         }
+        #endregion
+        #endregion
 
+        #region Utility
         /// <summary>
         /// Sanitize a file name so it can actually be used as file name
         /// </summary>
@@ -284,6 +406,22 @@ namespace PadoruManager.GitToC
             }
 
             return outp;
+        }
+
+        /// <summary>
+        /// Contains data of a Table of Contents
+        /// </summary>
+        class ToCData
+        {
+            /// <summary>
+            /// All character entries in the toc
+            /// </summary>
+            public List<ToCEntry> Characters { get; set; }
+
+            /// <summary>
+            /// All creator entries in the toc
+            /// </summary>
+            public List<ToCCreator> Creators { get; set; }
         }
 
         /// <summary>
@@ -318,15 +456,15 @@ namespace PadoruManager.GitToC
             public string ImageUrl { get; set; }
 
             /// <summary>
-            /// The name of this padoru's creator
+            /// The creator of this padoru
             /// </summary>
-            public string CreatorName { get; set; }
+            public ToCCreator Creator { get; set; }
 
             /// <summary>
             /// The source url of this padoru entry
             /// </summary>
             /// <remarks>optional field, may be empty</remarks>
-            public string CreatorUrl { get; set; }
+            public string SourceUrl { get; set; }
 
             /// <summary>
             /// The name of the person that contributed this entry
@@ -369,5 +507,32 @@ namespace PadoruManager.GitToC
             /// </summary>
             public string ShowMalUrl { get; set; }
         }
+
+        /// <summary>
+        /// a creator that created a ToC entry
+        /// </summary>
+        class ToCCreator
+        {
+            /// <summary>
+            /// The url of the creators page
+            /// </summary>
+            public string PageUrl { get; set; }
+
+            /// <summary>
+            /// The name of this padoru's creator
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// The list of entrys this creator created
+            /// </summary>
+            public List<ToCEntry> Entries { get; set; }
+
+            public ToCCreator()
+            {
+                Entries = new List<ToCEntry>();
+            }
+        }
+        #endregion
     }
 }
