@@ -332,8 +332,12 @@ namespace PadoruManager.GitToC
             //sort tocs by creator name
             toCEntries.Sort((a, b) =>
             {
+                //remove u/ from the names (reddit names)
+                string aN = a.Name.Replace("u/", "").Replace("U/", "");
+                string bN = b.Name.Replace("u/", "").Replace("U/", "");
+
                 //compare names
-                return a.Name.CompareTo(b.Name);
+                return aN.CompareTo(bN);
             });
 
             //create file
