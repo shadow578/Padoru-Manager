@@ -473,7 +473,7 @@ namespace PadoruManager.GitToC
                     string postedOn = sourceUri.Host;
                     postedOn = postedOn.Replace("www.", "");
 
-                    page.WriteLine($"* **Posted on**  [{postedOn}]({toc.SourceUrl})");
+                    page.WriteLine($"* **Posted on:**     [{postedOn}]({toc.SourceUrl})");
                 }
 
                 //creator with creator page linked
