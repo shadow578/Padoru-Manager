@@ -467,13 +467,23 @@ namespace PadoruManager.GitToC
                 //add image info
                 page.WriteLine();
                 page.WriteLine("### Image Info");
-                if (string.IsNullOrWhiteSpace(toc.SourceUrl))
+                if (!string.IsNullOrWhiteSpace(toc.SourceUrl) && Uri.TryCreate(toc.SourceUrl, UriKind.Absolute, out Uri sourceUri))
+                {
+                    //Get the name of the page this was posted on
+                    string postedOn = sourceUri.Host;
+                    postedOn = postedOn.Replace("www.", "");
+
+                    page.WriteLine($"* **Posted on**  [{postedOn}]({toc.SourceUrl})");
+                }
+
+                //creator with creator page linked
+                if (string.IsNullOrWhiteSpace(toc.Creator.PageUrl))
                 {
                     page.WriteLine($"* **Created by:**    {toc.Creator.Name}");
                 }
                 else
                 {
-                    page.WriteLine($"* **Created by:**    [{toc.Creator.Name}]({toc.SourceUrl})");
+                    page.WriteLine($"* **Created by:**    [{toc.Creator.Name}]({toc.Creator.PageUrl})");
                 }
                 page.WriteLine($"* **Contributor:**   {toc.ContributorName}");
 
