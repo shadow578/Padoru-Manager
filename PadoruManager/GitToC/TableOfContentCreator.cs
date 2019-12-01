@@ -38,6 +38,13 @@ namespace PadoruManager.GitToC
             //create toc entries
             ToCData tocData = await CreateData(collection);
 
+            //create character pages links
+            foreach (ToCEntry tocE in tocData.Characters)
+            {
+                //make character page url
+                tocE.CharacterPageUrl = $"{CurrentManagerConfig.GetTableOfContentsRepoRoot()}/characters/{SanitizeForFileName(tocE.CharacterName)}.md";
+            }
+
             //create creator pages
             foreach (ToCCreator tocC in tocData.Creators)
             {
@@ -61,9 +68,6 @@ namespace PadoruManager.GitToC
             //create character pages
             foreach (ToCEntry tocE in tocData.Characters)
             {
-                //make character page url
-                tocE.CharacterPageUrl = $"{CurrentManagerConfig.GetTableOfContentsRepoRoot()}/characters/{SanitizeForFileName(tocE.CharacterName)}.md";
-
                 //write local file
                 CreateCharacterPage(tocE, Path.Combine(CurrentManagerConfig.GetTableOfContentsLocalRoot(), "characters", SanitizeForFileName(tocE.CharacterName) + ".md"));
             }
