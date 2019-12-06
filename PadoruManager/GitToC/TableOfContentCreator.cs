@@ -296,9 +296,8 @@ namespace PadoruManager.GitToC
                     }
                 }
 
-                //add page generation date
-                page.WriteLine();
-                page.WriteLine($"###### Generated on {DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss")}");
+                //write footer
+                WritePageFooter(page);
             }
         }
 
@@ -381,9 +380,8 @@ namespace PadoruManager.GitToC
                     }
                 }
 
-                //add page generation date
-                page.WriteLine();
-                page.WriteLine($"###### Generated on {DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss")}");
+                //write footer
+                WritePageFooter(page);
             }
         }
 
@@ -452,9 +450,8 @@ namespace PadoruManager.GitToC
                     }
                 }
 
-                //add page generation date
-                page.WriteLine();
-                page.WriteLine($"###### Generated on {DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss")}");
+                //write footer
+                WritePageFooter(page);
             }
         }
 
@@ -473,7 +470,8 @@ namespace PadoruManager.GitToC
                 page.WriteLine();
 
                 //add inline image
-                page.WriteLine($"![padoru]({toc.ImageUrl} \"{toc.CharacterName}\")");
+                //page.WriteLine($"![padoru]({toc.ImageUrl} \"{toc.CharacterName}\")");
+                page.WriteLine($"<img src=\"{toc.ImageUrl}\" height=\"300\">");
 
                 //add image info
                 page.WriteLine();
@@ -561,6 +559,22 @@ namespace PadoruManager.GitToC
         #endregion
 
         #region Utility
+        /// <summary>
+        /// Write a footer to the given page
+        /// </summary>
+        /// <param name="page">the page to write to</param>
+        void WritePageFooter(TextWriter page)
+        {
+            //empty line before footer
+            page.WriteLine();
+
+            //add notice that this page was auto- generated
+            page.WriteLine("###### This page was automatically generated. If it contains errors, please open a Issue.");
+
+            //add page generation date
+            //page.WriteLine($"###### Generated on {DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss")}");
+        }
+
         /// <summary>
         /// Sanitize a file name so it can actually be used as file name
         /// </summary>
