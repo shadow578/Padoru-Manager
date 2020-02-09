@@ -51,6 +51,12 @@ namespace PadoruManager.UI
         /// Were any changes made in the current collection that were not yet saved?
         /// </summary>
         bool hasUnsavedChanges = false;
+
+        /// <summary>
+        /// If true, the remote images (=from the image url) are used instead of local collection image files
+        /// (this kills performance)
+        /// </summary>
+        bool forceRemoteImage = false;
         #endregion
 
         /// <summary>
@@ -227,23 +233,43 @@ namespace PadoruManager.UI
         /// <returns>the loaded image</returns>
         async Task<Image> GetImageFromEntry(PadoruEntry entry)
         {
-            return await Task.Run(() =>
+            if (forceRemoteImage)
             {
-                //get image data for preview
-                byte[] entryImgData = entry.GetImageDataLocal();
-
-                //load image from data, use fallback when load failed
-                if (entryImgData != null)
+                return await entry.GetImageDataRemote().ContinueWith((t) =>
                 {
-                    using (MemoryStream entryImgDataStream = new MemoryStream(entryImgData))
+                    //load image from data, use fallback when load failed
+                    if (t.IsCompleted && !t.IsFaulted && !t.IsCanceled && t.Result != null)
                     {
-                        return Image.FromStream(entryImgDataStream);
+                        using (MemoryStream entryImgDataStream = new MemoryStream(t.Result))
+                        {
+                            return Image.FromStream(entryImgDataStream);
+                        }
                     }
-                }
 
-                //fallback to null
-                return null;
-            });
+                    //fallback to null
+                    return null;
+                });
+            }
+            else
+            {
+                return await Task.Run(() =>
+                {
+                    //get image data for preview
+                    byte[] entryImgData = entry.GetImageDataLocal();
+
+                    //load image from data, use fallback when load failed
+                    if (entryImgData != null)
+                    {
+                        using (MemoryStream entryImgDataStream = new MemoryStream(entryImgData))
+                        {
+                            return Image.FromStream(entryImgDataStream);
+                        }
+                    }
+
+                    //fallback to null
+                    return null;
+                });
+            }
         }
 
         /// <summary>
@@ -751,6 +777,24 @@ echo Collection dir: %1");
             {
                 //show message box that toc was not created
                 MessageBox.Show(this, "A Table of Contents was not created! Is a collection loaded?", "TOC not created", MessageBoxButtons.OK);
+            }
+        }
+
+        void OnForceRemoteImageChanged(object sender, EventArgs e)
+        {
+            if (forceRemoteImage)
+            {
+                //just disable without asking...
+                forceRemoteImage = false;
+            }
+            else
+            {
+                //ask user if he is sure he wants to enable this function
+                DialogResult confirmBoxResult = MessageBox.Show(this, "Are you sure you want to force Remote Image downloads?\nThis will kill reloading performance!", "Force Remote Image Download?", MessageBoxButtons.YesNo);
+                if (confirmBoxResult != DialogResult.Yes) return;
+
+                //user is ok with crippling performance, enable it
+                forceRemoteImage = true;
             }
         }
 

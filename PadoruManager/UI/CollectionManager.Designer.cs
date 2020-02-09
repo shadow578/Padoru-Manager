@@ -41,6 +41,7 @@
             this.btnAddNew = new System.Windows.Forms.Button();
             this.btnEditCurrent = new System.Windows.Forms.Button();
             this.btnRemoveCurrent = new System.Windows.Forms.Button();
+            this.chkForceUseRemoteImage = new System.Windows.Forms.CheckBox();
             this.btnReloadCollection = new System.Windows.Forms.Button();
             this.lbEntrysCount = new System.Windows.Forms.Label();
             this.btnSaveCollection = new System.Windows.Forms.Button();
@@ -171,6 +172,7 @@
             // 
             pBottomControls.AutoSize = true;
             pBottomControls.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            pBottomControls.Controls.Add(this.chkForceUseRemoteImage);
             pBottomControls.Controls.Add(this.btnReloadCollection);
             pBottomControls.Controls.Add(this.lbEntrysCount);
             pBottomControls.Controls.Add(btnOpenCollection);
@@ -181,6 +183,18 @@
             pBottomControls.Name = "pBottomControls";
             pBottomControls.Size = new System.Drawing.Size(960, 35);
             pBottomControls.TabIndex = 1072;
+            // 
+            // chkForceUseRemoteImage
+            // 
+            this.chkForceUseRemoteImage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkForceUseRemoteImage.AutoSize = true;
+            this.chkForceUseRemoteImage.Location = new System.Drawing.Point(360, 11);
+            this.chkForceUseRemoteImage.Name = "chkForceUseRemoteImage";
+            this.chkForceUseRemoteImage.Size = new System.Drawing.Size(125, 17);
+            this.chkForceUseRemoteImage.TabIndex = 1072;
+            this.chkForceUseRemoteImage.Text = "Force Remote Image";
+            this.chkForceUseRemoteImage.UseVisualStyleBackColor = true;
+            this.chkForceUseRemoteImage.CheckedChanged += new System.EventHandler(this.OnForceRemoteImageChanged);
             // 
             // btnReloadCollection
             // 
@@ -303,5 +317,6 @@
         private System.Windows.Forms.Button btnCreateToc;
         private System.Windows.Forms.Button btnRunPushScript;
         private System.Windows.Forms.Button btnReloadCollection;
+        private System.Windows.Forms.CheckBox chkForceUseRemoteImage;
     }
 }
