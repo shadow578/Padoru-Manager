@@ -270,7 +270,7 @@ namespace PadoruManager.UI
             if (queryMalId == -1)
             {
                 //search mal for character name
-                CharacterSearchResult searchResults = await jikan.SearchCharacter(searchQuery);
+                CharacterSearchResult searchResults = await jikan.SearchCharacter(searchQuery, 1);
 
                 //check that we actually have search results
                 if (searchResults == null || searchResults.Results == null) return characterEntries;
