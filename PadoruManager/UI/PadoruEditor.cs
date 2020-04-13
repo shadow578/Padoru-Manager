@@ -238,25 +238,74 @@ namespace PadoruManager.UI
         /// <summary>
         /// Get a list of all MAL characters matching the given search query
         /// </summary>
-        /// <param name="searchName">the search query to use to find the character</param>
+        /// <param name="searchQuery">the search query to use to find the character</param>
         /// <returns>the list of found characters</returns>
-        async Task<List<MalCharacterEntry>> GetMalCharacters(string searchName)
+        async Task<List<MalCharacterEntry>> GetMalCharacters(string searchQuery)
         {
             //create a empty list to hold search results
             List<MalCharacterEntry> characterEntries = new List<MalCharacterEntry>();
 
             //check the query input
-            if (string.IsNullOrWhiteSpace(searchName)) return characterEntries;
+            if (string.IsNullOrWhiteSpace(searchQuery)) return characterEntries;
 
-            //search mal for character name
-            CharacterSearchResult searchResults = await jikan.SearchCharacter(searchName);
+            //get search query in lower case and trimmed for additional operations
+            string searchQueryLc = searchQuery.ToLower().Trim();
 
-            //check that we actually have search results
-            if (searchResults == null || searchResults.Results == null) return characterEntries;
-
-            //create a list of all search results
-            foreach (CharacterSearchEntry character in searchResults.Results)
+            //check if search query is searching for a mal id directly (prefix id:)
+            long queryMalId = -1;
+            if (searchQueryLc.StartsWith("id:") || searchQueryLc.StartsWith("id: "))
             {
+                //get id string
+                string queryIdSub = searchQueryLc.Substring("id:".Length).Trim();
+
+                //parse id string as long
+                if (!long.TryParse(queryIdSub, out queryMalId))
+                {
+                    //parse failed, fall back to queryid = -1 (default search)
+                    queryMalId = -1;
+                }
+            }
+
+            //perform normal search if queryMalId is -1 (not given OR parse failed), otherwise get character directly using id
+            if (queryMalId == -1)
+            {
+                //search mal for character name
+                CharacterSearchResult searchResults = await jikan.SearchCharacter(searchQuery);
+
+                //check that we actually have search results
+                if (searchResults == null || searchResults.Results == null) return characterEntries;
+
+                //create a list of all search results
+                foreach (CharacterSearchEntry character in searchResults.Results)
+                {
+                    //Get which show the character is from
+                    string show = "?";
+                    if (character.Animeography != null && character.Animeography.Count > 0)
+                    {
+                        show = character.Animeography.First().Name;
+                    }
+                    else if (character.Mangaography != null && character.Mangaography.Count > 0)
+                    {
+                        show = character.Mangaography.First().Name;
+                    }
+
+                    //Create entry object
+                    characterEntries.Add(new MalCharacterEntry()
+                    {
+                        Name = character.Name,
+                        Id = character.MalId,
+                        Show = show
+                    });
+                }
+            }
+            else
+            {
+                //get character by mal id in query
+                Character character = await jikan.GetCharacter(queryMalId);
+
+                //check we actually found a character
+                if (character == null) return characterEntries;
+
                 //Get which show the character is from
                 string show = "?";
                 if (character.Animeography != null && character.Animeography.Count > 0)
@@ -268,7 +317,7 @@ namespace PadoruManager.UI
                     show = character.Mangaography.First().Name;
                 }
 
-                //Create entry object
+                //add character to list of "search" results
                 characterEntries.Add(new MalCharacterEntry()
                 {
                     Name = character.Name,
